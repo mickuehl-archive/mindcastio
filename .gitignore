@@ -1,7 +1,7 @@
 # services
 services/crawler/crawler
-indexer
-search
+services/indexer/indexer
+services/search/search
 
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
