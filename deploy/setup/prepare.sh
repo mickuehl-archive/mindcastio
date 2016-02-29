@@ -20,5 +20,11 @@ sudo apt-get -y install build-essential autoconf bison \
   libncurses5-dev zlib1g-dev libffi-dev libxslt1-dev libxml2-dev \
   software-properties-common
 
-# mysql client libs	  
+# mysql client libs
 sudo apt-get -y install mariadb-client-5.5 libmariadbd-dev
+
+# 'disable' the firewall
+sudo iptables -P INPUT ACCEPT
+sudo iptables -P OUTPUT ACCEPT
+sudo iptables -P FORWARD ACCEPT
+sudo iptables -F
