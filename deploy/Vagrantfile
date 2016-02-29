@@ -8,6 +8,10 @@ VAGRANTFILE_API_VERSION = "2"
 SETUP_USER="vagrant"
 SETUP_HOME="/home/vagrant"
 
+MINDCAST_SRC="$SETUP_HOME/build/src"
+MINDCAST_REPO="https://github.com/mindcastio/mindcastio.git"
+BRANCH="master"
+
 # network setup
 NODE_NAME = "mc"
 DOMAIN_NAME="mindcastio.local"
@@ -47,6 +51,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # add an alternative host to /etc/hosts
   config.vm.provision "shell", inline: "sudo echo '#{NODE_IP} n0.#{DOMAIN_NAME} n0' >> /etc/hosts"
 
+  # location from where to build the project
+  config.vm.provision "shell", inline: "echo 'export GOPATH=/home/vagrant/build' >> /etc/profile"
+
   # add files
   config.vm.provision "file", source: "lib/maria-db.rb", destination: "#{SETUP_HOME}/lib/maria-db.rb"
   config.vm.provision "shell", inline: "sudo ln -s #{SETUP_HOME}/lib/maria-db.rb /usr/local/bin/maria-db"
@@ -55,29 +62,26 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "shell", path: "setup/prepare.sh"
 
   # add the latest Docker Engine
-  config.vm.provision "docker"
+  #config.vm.provision "docker"
 
   # add language runtimes (optional)
-  config.vm.provision "shell", path: "setup/ruby.sh"
+  #config.vm.provision "shell", path: "setup/ruby.sh"
   config.vm.provision "shell", path: "setup/golang.sh"
 
   # add the repo locally
-  #config.vm.provision "shell", inline: "git clone #{REPO} --branch #{BRANCH} --single-branch #{SETUP_HOME}/repo"
-  #config.vm.provision "shell", inline: "sudo chown -R #{SETUP_USER}:#{SETUP_USER} #{SETUP_HOME}/repo"
+  config.vm.provision "shell", inline: "git clone #{MINDCAST_REPO} --branch #{BRANCH} --single-branch #{MINDCAST_SRC}/github.com/mindcastio/mindcastio"
+  config.vm.provision "shell", inline: "sudo chown -R #{SETUP_USER}:#{SETUP_USER} #{MINDCAST_SRC}"
   config.vm.provision "shell", inline: "git config --global user.email hello@#{DOMAIN_NAME}"
   config.vm.provision "shell", inline: "git config --global user.name mindcast"
 
 
   # add docker images
-  config.vm.provision "shell", inline: "docker create --name mariadb -p 3306:3306 -e MARIADB_PASS='mariadb' tutum/mariadb"
-  config.vm.provision "shell", inline: "docker create --name mongo -p 27017:27017 mongo --storageEngine=wiredTiger"
-  config.vm.provision "shell", inline: "docker create --name elastic -p 9200:9200 -p 9300:9300 elasticsearch"
-  config.vm.provision "shell", inline: "docker create --name natsd -p 4222:4222 -p 6222:6222 nats"
+  #config.vm.provision "shell", inline: "docker create --name mariadb -p 3306:3306 -e MARIADB_PASS='mariadb' tutum/mariadb"
+  #config.vm.provision "shell", inline: "docker create --name mongo -p 27017:27017 mongo --storageEngine=wiredTiger"
+  #config.vm.provision "shell", inline: "docker create --name elastic -p 9200:9200 -p 9300:9300 elasticsearch"
+  #config.vm.provision "shell", inline: "docker create --name natsd -p 4222:4222 -p 6222:6222 nats"
 
   # cleanup
   config.vm.provision "shell", inline: "sudo apt-get clean && sudo apt-get -y autoremove"
-
-  # mount the project folder to the guest OS for easier development
-  config.vm.synced_folder "..", "#{SETUP_HOME}/mindcastio"
 
 end
