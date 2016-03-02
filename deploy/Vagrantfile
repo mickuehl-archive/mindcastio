@@ -81,7 +81,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #config.vm.provision "shell", inline: "docker create --name mariadb -p 3306:3306 -e MARIADB_PASS='mariadb' tutum/mariadb"
   config.vm.provision "shell", inline: "docker create --name mongo -p 27017:27017 mongo --storageEngine=wiredTiger"
   config.vm.provision "shell", inline: "docker create --name elastic -p 9200:9200 -p 9300:9300 elasticsearch"
-  config.vm.provision "shell", inline: "docker create --name natsd -p 4222:4222 -p 6222:6222 nats"
+  #config.vm.provision "shell", inline: "docker create --name natsd -p 4222:4222 -p 6222:6222 nats"
 
   # cleanup
   config.vm.provision "shell", inline: "sudo apt-get clean && sudo apt-get -y autoremove"
