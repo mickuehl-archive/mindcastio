@@ -76,6 +76,7 @@ func iTunesToResult(item *iTunesItem) *Result {
 		util.UID(item.FeedUrl),
 		"podcast",
 		item.CollectionName,
+		"",
 		item.CollectionName,
 		"",
 		item.FeedUrl,

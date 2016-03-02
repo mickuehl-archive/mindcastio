@@ -58,7 +58,7 @@ func elasticToResult(item *HitDetail) *Result {
 		return &Result{
 			item.Id,
 			"podcast",
-			"", "", "", "", "", 0, 0,
+			"", "", "", "", "", "", 0, 0,
 		}
 	}
 
@@ -66,12 +66,13 @@ func elasticToResult(item *HitDetail) *Result {
 		item.Id,
 		"podcast",
 		podcast.Title,
+		podcast.Subtitle,
 		podcast.Description,
 		podcast.Url,
 		podcast.Feed,
 		podcast.ImageUrl,
 		(int)(item.Score * 100),
-		0,
+		podcast.Published,
 	}
 
 }

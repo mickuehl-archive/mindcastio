@@ -16,6 +16,7 @@ type (
 		Uid         string `jsonapi:"primary,result"`
 		Kind        string `jsonapi:"attr,kind"` // podcast | episode
 		Title       string `jsonapi:"attr,title"`
+		Subtitle    string `jsonapi:"attr,subtitle"`
 		Description string `jsonapi:"attr,description"`
 		Url         string `jsonapi:"attr,url"`
 		Feed        string `jsonapi:"attr,feed"`
