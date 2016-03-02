@@ -10,7 +10,6 @@ import (
 	"github.com/mindcastio/mindcastio/backend/datastore"
 	"github.com/mindcastio/mindcastio/backend/environment"
 	"github.com/mindcastio/mindcastio/backend/logger"
-	"github.com/mindcastio/mindcastio/backend/messaging"
 	"github.com/mindcastio/mindcastio/backend/metrics"
 )
 
@@ -22,7 +21,6 @@ func main() {
 	logger.Initialize()
 	metrics.Initialize(env)
 	datastore.Initialize(env)
-	messaging.Initialize(env)
 
 	// periodic background processes
 	background_channel := time.NewTicker(time.Second * time.Duration(backend.DEFAULT_INDEXER_SCHEDULE)).C
@@ -51,7 +49,6 @@ func shutdown() {
 	logger.Log("mindcast.indexer.shutdown")
 	metrics.Success("mindcast", "indexer.shutdown", nil)
 
-	messaging.Shutdown()
 	datastore.Shutdown()
 	metrics.Shutdown()
 }

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/nats-io/nats"
+
 	"os"
 	"os/signal"
 	"strconv"
@@ -12,7 +12,6 @@ import (
 	"github.com/mindcastio/mindcastio/backend/datastore"
 	"github.com/mindcastio/mindcastio/backend/environment"
 	"github.com/mindcastio/mindcastio/backend/logger"
-	"github.com/mindcastio/mindcastio/backend/messaging"
 	"github.com/mindcastio/mindcastio/backend/metrics"
 )
 
@@ -24,7 +23,6 @@ func main() {
 	logger.Initialize()
 	metrics.Initialize(env)
 	datastore.Initialize(env)
-	messaging.Initialize(env)
 
 	// periodic background processes
 	background_channel := time.NewTicker(time.Second * time.Duration(backend.DEFAULT_CRAWLER_SCHEDULE)).C
@@ -41,11 +39,6 @@ func main() {
 	// start the scheduler
 	logger.Log("mindcast.crawler.startup")
 	metrics.Success("mindcast", "crawler.startup", nil)
-
-	// subscribe to crawler queue
-	messaging.QueueSubscribe(backend.Q_CRAWLER_REQUEST, backend.CRAWLER_QUEUE, func(msg *nats.Msg) {
-		podcastCrawl(string(msg.Data))
-	})
 
 	for {
 		<-background_channel
@@ -64,7 +57,7 @@ func schedulePodcastCrawling() {
 
 	if count > 0 {
 		for i := 0; i < count; i++ {
-			messaging.Send(backend.Q_CRAWLER_REQUEST, expired[i].Uid)
+			go backend.CrawlPodcastFeed(expired[i].Uid)
 		}
 		metrics.Count("crawler.scheduled", count)
 	}
@@ -72,21 +65,10 @@ func schedulePodcastCrawling() {
 	logger.Log("mindcast.crawler.schedule_podcast_crawling.done")
 }
 
-func podcastCrawl(uid string) {
-	logger.Log("mindcast.crawler.podcast_crawl", uid)
-
-	// crawl the the feed
-	go backend.CrawlPodcastFeed(uid)
-
-	metrics.Count("crawler.crawled", 1)
-	logger.Log("mindcast.crawler.podcast_crawl.done", uid)
-}
-
 func shutdown() {
 	logger.Log("mindcast.crawler.shutdown")
 	metrics.Success("mindcast", "crawler.shutdown", nil)
 
-	messaging.Shutdown()
 	datastore.Shutdown()
 	metrics.Shutdown()
 }

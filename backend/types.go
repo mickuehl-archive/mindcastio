@@ -1,10 +1,10 @@
 package backend
 
 const (
-	DEFAULT_UPDATE_RATE        int   = 20  // min.
-	DEFAULT_CRAWLER_SCHEDULE   int64 = 60  // sec
-	DEFAULT_INDEXER_SCHEDULE   int64 = 60  // sec
-	DEFAULT_UPDATE_BATCH       int   = 100 // how many podcasts to update per crawler run
+	DEFAULT_UPDATE_RATE        int   = 720  // min.
+	DEFAULT_CRAWLER_SCHEDULE   int64 = 120  // sec
+	DEFAULT_INDEXER_SCHEDULE   int64 = 120  // sec
+	DEFAULT_UPDATE_BATCH       int   = 50 	// how many podcasts to update per crawler run
 	DEFAULT_INDEX_UPDATE_BATCH int   = 400 // how many podcasts or episodes to send to elasicsearch each batch
 	MAX_ERRORS                 int   = 4
 	SEARCH_REVISION            int   = 1

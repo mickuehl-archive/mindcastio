@@ -9,7 +9,6 @@ import (
 
 	"github.com/mindcastio/mindcastio/backend/datastore"
 	"github.com/mindcastio/mindcastio/backend/logger"
-	"github.com/mindcastio/mindcastio/backend/messaging"
 	"github.com/mindcastio/mindcastio/backend/metrics"
 	"github.com/mindcastio/mindcastio/backend/util"
 )
@@ -36,8 +35,7 @@ func SubmitPodcastFeed(feed string) error {
 
 			return err
 		} else {
-			// initiate immediate crawling
-			messaging.Send(Q_CRAWLER_REQUEST, uid)
+			go CrawlPodcastFeed(uid)
 		}
 	} else {
 		logger.Warn("submit_podcast_feed.duplicate", uid, feed)
@@ -71,9 +69,7 @@ func BulkSubmitPodcastFeed(urls []string) error {
 
 				return err
 			} else {
-				// initiate immediate crawling
-				messaging.Send(Q_CRAWLER_REQUEST, uid)
-
+				go CrawlPodcastFeed(uid)
 				count++
 			}
 		}

@@ -14,7 +14,6 @@ import (
 	"github.com/mindcastio/mindcastio/backend/datastore"
 	"github.com/mindcastio/mindcastio/backend/environment"
 	"github.com/mindcastio/mindcastio/backend/logger"
-	"github.com/mindcastio/mindcastio/backend/messaging"
 	"github.com/mindcastio/mindcastio/backend/metrics"
 	"github.com/mindcastio/mindcastio/backend/util"
 )
@@ -27,7 +26,6 @@ func main() {
 	logger.Initialize()
 	metrics.Initialize(env)
 	datastore.Initialize(env)
-	messaging.Initialize(env)
 
 	// initilize the REST API router
 	api := rest.NewApi()
@@ -101,7 +99,7 @@ func search(q string) *SearchResult {
 		for i := range result {
 			feeds[i] = result[i].Feed
 		}
-		go backend.BulkSubmitPodcastFeed(feeds)
+		backend.BulkSubmitPodcastFeed(feeds)
 	}
 
 	return &SearchResult{uuid, len(result), q, result}
@@ -113,7 +111,6 @@ func shutdown() {
 	metrics.Success("mindcast", "search.shutdown", nil)
 
 	// shutdown of services
-	messaging.Shutdown()
 	datastore.Shutdown()
 	metrics.Shutdown()
 }
