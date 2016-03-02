@@ -13,9 +13,14 @@ import (
 	"github.com/mindcastio/mindcastio/backend"
 	"github.com/mindcastio/mindcastio/backend/datastore"
 	"github.com/mindcastio/mindcastio/backend/environment"
+	"github.com/mindcastio/mindcastio/backend/search"
 	"github.com/mindcastio/mindcastio/backend/logger"
 	"github.com/mindcastio/mindcastio/backend/metrics"
 	"github.com/mindcastio/mindcastio/backend/util"
+)
+
+const (
+	SEARCH_ENDPOINT string = "/api/1/search"
 )
 
 func main() {
@@ -77,33 +82,13 @@ func endpoint(w rest.ResponseWriter, r *rest.Request) {
 
 	logger.Log("search.search.query", query)
 
-	result := search(query)
+	result := search.Search(query)
 	backend.JsonApiResponse(w, result)
 
 	// metrics
 	metrics.Count("api.total", 1)
 	metrics.Count("search.search", 1)
 	metrics.Histogram("search.search.duration", (float64)(util.ElapsedTimeSince(start)))
-}
-
-func search(q string) *SearchResult {
-	uuid, _ := util.UUID()
-
-	result, _ := searchElastic(q)
-	if len(result) == 0 {
-		// search externally
-		result, _ = searchITunes(q)
-
-		// send feeds to the crawler
-		feeds := make([]string, len(result))
-		for i := range result {
-			feeds[i] = result[i].Feed
-		}
-		backend.BulkSubmitPodcastFeed(feeds)
-	}
-
-	return &SearchResult{uuid, len(result), q, result}
-
 }
 
 func shutdown() {

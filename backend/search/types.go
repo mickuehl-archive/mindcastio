@@ -1,8 +1,4 @@
-package main
-
-const (
-	SEARCH_ENDPOINT string = "/api/1/search"
-)
+package search
 
 type (
 	SearchResult struct {

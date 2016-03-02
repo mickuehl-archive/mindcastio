@@ -8,10 +8,6 @@ const (
 	DEFAULT_INDEX_UPDATE_BATCH int   = 400 // how many podcasts or episodes to send to elasicsearch each batch
 	MAX_ERRORS                 int   = 4
 	SEARCH_REVISION            int   = 1
-
-	CRAWLER_QUEUE     string = "mindcast.crawler"
-	Q_CRAWLER_REQUEST string = "q.crawler.request"
-	Q_SEARCHTERM_LOG  string = "q.searchterm.log"
 )
 
 type (
