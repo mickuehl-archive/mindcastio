@@ -4,7 +4,7 @@ import (
 	"github.com/nats-io/nats"
 
 	"github.com/mindcastio/mindcastio/backend/environment"
-	"github.com/mindcastio/mindcastio/backend/logger"
+	"github.com/mindcastio/mindcastio/backend/services/logger"
 )
 
 type MessageBroker struct {

@@ -6,7 +6,7 @@ import (
 	"github.com/ooyala/go-dogstatsd"
 
 	"github.com/mindcastio/mindcastio/backend/environment"
-	"github.com/mindcastio/mindcastio/backend/logger"
+	"github.com/mindcastio/mindcastio/backend/services/logger"
 )
 
 var _statsd *dogstatsd.Client

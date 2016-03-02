@@ -3,7 +3,7 @@ package datastore
 import (
 	"gopkg.in/mgo.v2"
 
-	"github.com/mindcastio/mindcastio/backend/logger"
+	"github.com/mindcastio/mindcastio/backend/services/logger"
 )
 
 func createIndex() {

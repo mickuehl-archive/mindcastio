@@ -4,7 +4,7 @@ import (
 	"gopkg.in/mgo.v2"
 
 	"github.com/mindcastio/mindcastio/backend/environment"
-	"github.com/mindcastio/mindcastio/backend/logger"
+	"github.com/mindcastio/mindcastio/backend/services/logger"
 )
 
 const (
@@ -14,7 +14,6 @@ const (
 	META_COL     string = "meta"
 	PODCASTS_COL string = "podcasts"
 	EPISODES_COL string = "episodes"
-	DATA_COL     string = "datapoints"
 )
 
 var _session *mgo.Session
