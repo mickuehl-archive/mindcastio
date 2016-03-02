@@ -38,7 +38,7 @@ type (
 
 func searchElastic(q string) ([]*Result, error) {
 
-	query := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "search/_search?q=", q}, "")
+	query := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "search/_search?size=50&q=", q}, "")
 
 	result := ElasticResponse{}
 	err := util.GetJson(query, &result)
