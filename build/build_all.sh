@@ -1,5 +1,13 @@
 #!/bin/bash
 
+export MINDCAST_HOME=/opt/data/build
+export MINDCAST_SRC=/opt/data/build/src/github.com/mindcastio/mindcastio
+export GOPATH=/opt/data/build
+
+# update
+cd $MINDCAST_SRC
+git pull origin master
+
 # build binaries
 cd $MINDCAST_SRC/services/crawler
 echo "Building the crawler ..."
