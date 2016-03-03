@@ -94,7 +94,7 @@ func IndexAdd(uid string, url string) error {
 	main_index := ds.Collection(datastore.META_COL)
 
 	// add some random element to the first update point in time
-	next := util.IncT(util.Timestamp(), 10+util.Random(DEFAULT_UPDATE_RATE))
+	next := util.IncT(util.Timestamp(), 2+util.Random(FIRST_UPDATE_RATE))
 
 	i := PodcastIndex{uid, url, DEFAULT_UPDATE_RATE, next, 0, 0, util.Timestamp(), 0}
 	return main_index.Insert(&i)
