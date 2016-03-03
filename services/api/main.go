@@ -10,9 +10,9 @@ import (
 	"github.com/mindcastio/go-json-rest/rest"
 
 	"github.com/mindcastio/mindcastio/backend/environment"
-	"github.com/mindcastio/mindcastio/backend/services/datastore"
-	"github.com/mindcastio/mindcastio/backend/services/logger"
-	"github.com/mindcastio/mindcastio/backend/services/metrics"
+	"github.com/mindcastio/mindcastio/backend/datastore"
+	"github.com/mindcastio/mindcastio/backend/logger"
+	"github.com/mindcastio/mindcastio/backend/metrics"
 )
 
 const (

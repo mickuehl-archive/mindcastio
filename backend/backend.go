@@ -7,9 +7,9 @@ import (
 
 	"github.com/mindcastio/podcast-feed"
 
-	"github.com/mindcastio/mindcastio/backend/services/datastore"
-	"github.com/mindcastio/mindcastio/backend/services/logger"
-	"github.com/mindcastio/mindcastio/backend/services/metrics"
+	"github.com/mindcastio/mindcastio/backend/datastore"
+	"github.com/mindcastio/mindcastio/backend/logger"
+	"github.com/mindcastio/mindcastio/backend/metrics"
 	"github.com/mindcastio/mindcastio/backend/util"
 )
 
