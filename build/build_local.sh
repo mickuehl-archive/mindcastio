@@ -1,0 +1,16 @@
+#!/bin/bash
+
+MINDCAST_SRC=`pwd`
+
+# build binaries
+cd $MINDCAST_SRC/services/crawler
+echo "Building the crawler ..."
+go get && go build
+
+cd $MINDCAST_SRC/services/indexer
+echo "Building the indexer ..."
+go get && go build
+
+cd $MINDCAST_SRC/services/api
+echo "Building the api service ..."
+go get && go build

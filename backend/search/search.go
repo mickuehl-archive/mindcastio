@@ -1,7 +1,6 @@
 package search
 
 import (
-
 	"github.com/mindcastio/mindcastio/backend"
 	"github.com/mindcastio/mindcastio/backend/util"
 )

@@ -1,0 +1,89 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+# box setup
+SETUP_USER="vagrant"
+
+MINDCAST_BUILD_HOME="/home/vagrant/build"
+MINDCAST_SRC="/home/vagrant/build/src/github.com/mindcastio/mindcastio"
+
+MINDCAST_REPO="https://github.com/mindcastio/mindcastio.git"
+BRANCH="master"
+
+# network setup
+NODE_NAME = "mc"
+DOMAIN_NAME="mindcastio.local"
+NODE_IP = "192.168.42.42"
+
+# box sizing
+VB_MEMORY=2048
+VB_CPUS=2
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+
+  # basic ubuntu box
+  config.vm.box = "ubuntu/trusty64"
+
+  # manage /etc/hosts on both host and all the guests
+  config.hostmanager.enabled = false # manage guest /etc/hosts
+  config.hostmanager.manage_host = false # manage host's /etc/hosts
+
+  # prevent automatic update of the box
+  if Vagrant.has_plugin?("vagrant-vbguest") then
+    config.vbguest.auto_update = true
+  end
+
+  # size of the box
+  config.vm.provider :virtualbox do |vb|
+    vb.memory = VB_MEMORY
+    vb.cpus = VB_CPUS
+  end
+
+  # setup the network
+  hostname = "#{NODE_NAME}.#{DOMAIN_NAME}"
+
+  config.vm.hostname = hostname
+  config.hostmanager.aliases = hostname
+  config.vm.network "private_network", ip: NODE_IP
+
+  # add an alternative host to /etc/hosts
+  config.vm.provision "shell", inline: "sudo echo '#{NODE_IP} n0.#{DOMAIN_NAME} n0' >> /etc/hosts"
+
+  # location from where to build the project
+  config.vm.provision "shell", inline: "echo 'export GOPATH=#{MINDCAST_BUILD_HOME}' >> /etc/profile"
+  config.vm.provision "shell", inline: "echo 'export MINDCAST_SRC=#{MINDCAST_SRC}' >> /etc/profile"
+  config.vm.provision "shell", inline: "echo 'export BACKEND_HOSTS=#{NODE_IP}' >> /etc/profile"
+
+  # add files
+  #config.vm.provision "file", source: "lib/maria-db.rb", destination: "#{SETUP_HOME}/lib/maria-db.rb"
+  #config.vm.provision "shell", inline: "sudo ln -s #{SETUP_HOME}/lib/maria-db.rb /usr/local/bin/maria-db"
+
+  # basic setup and language runtimes
+  config.vm.provision "shell", path: "setup/prepare.sh"
+
+  # add the latest Docker Engine
+  config.vm.provision "docker"
+
+  # add language runtimes (optional)
+  #config.vm.provision "shell", path: "setup/ruby.sh"
+  config.vm.provision "shell", path: "setup/golang.sh"
+
+  # add the repo locally
+  config.vm.provision "shell", inline: "git clone #{MINDCAST_REPO} --branch #{BRANCH} --single-branch #{MINDCAST_SRC}"
+  config.vm.provision "shell", inline: "sudo chown -R #{SETUP_USER}:#{SETUP_USER} #{MINDCAST_BUILD_HOME}"
+  config.vm.provision "shell", inline: "git config --global user.email hello@#{DOMAIN_NAME}"
+  config.vm.provision "shell", inline: "git config --global user.name mindcast"
+
+  # add docker images
+  #config.vm.provision "shell", inline: "docker create --name mariadb -p 3306:3306 -e MARIADB_PASS='mariadb' tutum/mariadb"
+  config.vm.provision "shell", inline: "docker create --name mongo -p 27017:27017 mongo --storageEngine=wiredTiger"
+  config.vm.provision "shell", inline: "docker create --name elastic -p 9200:9200 -p 9300:9300 elasticsearch"
+  #config.vm.provision "shell", inline: "docker create --name natsd -p 4222:4222 -p 6222:6222 nats"
+
+  # cleanup
+  config.vm.provision "shell", inline: "sudo apt-get clean && sudo apt-get -y autoremove"
+
+end

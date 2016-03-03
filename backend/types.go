@@ -11,6 +11,7 @@ const (
 )
 
 type (
+	
 	PodcastIndex struct {
 		Uid        string `json:"uid"`
 		Feed       string `json:"feed"`
