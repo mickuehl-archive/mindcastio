@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
@@ -43,27 +42,8 @@ func main() {
 
 	for {
 		<-background_channel
-		schedulePodcastCrawling()
+		crawler.SchedulePodcastCrawling()
 	}
-}
-
-func schedulePodcastCrawling() {
-	logger.Log("mindcast.crawler.schedule_podcast_crawling")
-
-	// search for podcasts that are candidates for crawling
-	expired := crawler.SearchExpiredPodcasts(backend.DEFAULT_UPDATE_BATCH)
-	count := len(expired)
-
-	logger.Log("mindcast.crawler.schedule_podcast_crawling.scheduling", strconv.FormatInt((int64)(count), 10))
-
-	if count > 0 {
-		for i := 0; i < count; i++ {
-			go crawler.CrawlPodcastFeed(expired[i].Uid)
-		}
-		metrics.Count("crawler.scheduled", count)
-	}
-
-	logger.Log("mindcast.crawler.schedule_podcast_crawling.done")
 }
 
 func shutdown() {

@@ -13,25 +13,23 @@ import (
 	"github.com/mindcastio/mindcastio/backend/util"
 )
 
-func SearchExpiredPodcasts(limit int) []backend.PodcastIndex {
+func SchedulePodcastCrawling() {
+	logger.Log("mindcast.crawler.schedule_podcast_crawling")
 
-	ds := datastore.GetDataStore()
-	defer ds.Close()
+	// search for podcasts that are candidates for crawling
+	expired := searchExpiredPodcasts(backend.DEFAULT_UPDATE_BATCH)
+	count := len(expired)
 
-	main_index := ds.Collection(datastore.META_COL)
+	logger.Log("mindcast.crawler.schedule_podcast_crawling.scheduling", strconv.FormatInt((int64)(count), 10))
 
-	results := []backend.PodcastIndex{}
-	q := bson.M{"next": bson.M{"$lte": util.Timestamp()}, "errors": bson.M{"$lte": backend.MAX_ERRORS}}
-
-	if limit <= 0 {
-		// return all
-		main_index.Find(q).All(&results)
-	} else {
-		// with a limit
-		main_index.Find(q).Limit(limit).All(&results)
+	if count > 0 {
+		for i := 0; i < count; i++ {
+			go CrawlPodcastFeed(expired[i].Uid)
+		}
+		metrics.Count("crawler.scheduled", count)
 	}
 
-	return results
+	logger.Log("mindcast.crawler.schedule_podcast_crawling.done")
 }
 
 func CrawlPodcastFeed(uid string) {
@@ -65,7 +63,7 @@ func CrawlPodcastFeed(uid string) {
 	}
 
 	// add to podcast metadata index
-	is_new, err := PodcastAdd(podcast)
+	is_new, err := podcastAdd(podcast)
 	if err != nil {
 		logger.Error("crawl_podcast_feed.error.3", err, uid, idx.Feed)
 		metrics.Error("crawl_podcast_feed.error", err.Error(), []string{uid, idx.Feed})
@@ -74,7 +72,7 @@ func CrawlPodcastFeed(uid string) {
 	}
 
 	// add to the episodes metadata index
-	count, err := EpisodesAddAll(podcast)
+	count, err := episodesAddAll(podcast)
 	if err != nil {
 		logger.Error("crawl_podcast_feed.error.4", err, uid, idx.Feed)
 		metrics.Error("crawl_podcast_feed.error", err.Error(), []string{uid, idx.Feed})
@@ -91,7 +89,7 @@ func CrawlPodcastFeed(uid string) {
 				metrics.Count("index.episodes.new", count)
 			} else {
 				// new episodes added -> update the podcast.published timestamp
-				PodcastUpdateTimestamp(podcast)
+				podcastUpdateTimestamp(podcast)
 
 				metrics.Count("index.episodes.update", count)
 			}
@@ -102,7 +100,7 @@ func CrawlPodcastFeed(uid string) {
 	}
 }
 
-func PodcastAdd(podcast *Podcast) (bool, error) {
+func podcastAdd(podcast *Podcast) (bool, error) {
 	p := backend.PodcastLookup(podcast.Uid)
 	if p != nil {
 		return false, nil
@@ -130,7 +128,7 @@ func PodcastAdd(podcast *Podcast) (bool, error) {
 	}
 }
 
-func PodcastUpdateTimestamp(podcast *Podcast) (bool, error) {
+func podcastUpdateTimestamp(podcast *Podcast) (bool, error) {
 
 	ds := datastore.GetDataStore()
 	defer ds.Close()
@@ -161,7 +159,7 @@ func PodcastUpdateTimestamp(podcast *Podcast) (bool, error) {
 	return true, nil
 }
 
-func EpisodeAdd(episode *Episode, puid string) (bool, error) {
+func episodeAdd(episode *Episode, puid string) (bool, error) {
 	e := backend.EpisodeLookup(episode.Uid)
 	if e != nil {
 		return false, nil
@@ -182,11 +180,11 @@ func EpisodeAdd(episode *Episode, puid string) (bool, error) {
 	}
 }
 
-func EpisodesAddAll(podcast *Podcast) (int, error) {
+func episodesAddAll(podcast *Podcast) (int, error) {
 	count := 0
 
 	for i := 0; i < len(podcast.Episodes); i++ {
-		added, err := EpisodeAdd(&podcast.Episodes[i], podcast.Uid)
+		added, err := episodeAdd(&podcast.Episodes[i], podcast.Uid)
 		if err != nil {
 			return 0, err
 		}
@@ -195,6 +193,27 @@ func EpisodesAddAll(podcast *Podcast) (int, error) {
 		}
 	}
 	return count, nil
+}
+
+func searchExpiredPodcasts(limit int) []backend.PodcastIndex {
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	main_index := ds.Collection(datastore.META_COL)
+
+	results := []backend.PodcastIndex{}
+	q := bson.M{"next": bson.M{"$lte": util.Timestamp()}, "errors": bson.M{"$lte": backend.MAX_ERRORS}}
+
+	if limit <= 0 {
+		// return all
+		main_index.Find(q).All(&results)
+	} else {
+		// with a limit
+		main_index.Find(q).Limit(limit).All(&results)
+	}
+
+	return results
 }
 
 func podcastDetailsToMetadata(podcast *Podcast) *backend.PodcastMetadata {
