@@ -1,10 +1,10 @@
 package backend
 
 import (
-	"gopkg.in/mgo.v2/bson"
 	"strconv"
-	"time"
+	"math"
 
+	"gopkg.in/mgo.v2/bson"
 	"github.com/mindcastio/podcast-feed"
 
 	"github.com/mindcastio/mindcastio/backend/datastore"
@@ -13,29 +13,22 @@ import (
 	"github.com/mindcastio/mindcastio/backend/util"
 )
 
-func PodcastLookup(uid string) *PodcastMetadata {
-	// TODO implement caching
-	return podcastLookup(uid)
-}
-
 func SubmitPodcastFeed(feed string) error {
 
 	logger.Log("submit_podcast_feed", feed)
 
 	// check if the podcast is already in the index
 	uid := util.UID(feed)
-	idx := indexLookup(uid)
+	idx := IndexLookup(uid)
 
 	if idx == nil {
-		err := indexAdd(uid, feed)
+		err := IndexAdd(uid, feed)
 		if err != nil {
 
 			logger.Error("submit_podcast_feed.error", err, feed)
 			metrics.Error("submit_podcast_feed.error", err.Error(), []string{feed})
 
 			return err
-		} else {
-			go CrawlPodcastFeed(uid)
 		}
 	} else {
 		logger.Warn("submit_podcast_feed.duplicate", uid, feed)
@@ -58,10 +51,10 @@ func BulkSubmitPodcastFeed(urls []string) error {
 
 		// check if the podcast is already in the index
 		uid := util.UID(feed)
-		idx := indexLookup(uid)
+		idx := IndexLookup(uid)
 
 		if idx == nil {
-			err := indexAdd(uid, feed)
+			err := IndexAdd(uid, feed)
 			if err != nil {
 
 				logger.Error("bulk_submit_podcast_feed.error", err, feed)
@@ -69,7 +62,6 @@ func BulkSubmitPodcastFeed(urls []string) error {
 
 				return err
 			} else {
-				go CrawlPodcastFeed(uid)
 				count++
 			}
 		}
@@ -79,91 +71,246 @@ func BulkSubmitPodcastFeed(urls []string) error {
 	return nil
 }
 
-func SearchExpiredPodcasts(limit int) []PodcastIndex {
+func IndexLookup(uid string) *PodcastIndex {
 
 	ds := datastore.GetDataStore()
 	defer ds.Close()
 
 	main_index := ds.Collection(datastore.META_COL)
 
-	results := []PodcastIndex{}
-	q := bson.M{"next": bson.M{"$lte": util.Timestamp()}, "errors": bson.M{"$lte": MAX_ERRORS}}
+	i := PodcastIndex{}
+	main_index.Find(bson.M{"uid": uid}).One(&i)
 
-	if limit <= 0 {
-		// return all
-		main_index.Find(q).All(&results)
+	if i.Feed == "" {
+		return nil
 	} else {
-		// with a limit
-		main_index.Find(q).Limit(limit).All(&results)
+		return &i
 	}
-
-	return results
 }
 
-func CrawlPodcastFeed(uid string) {
+func IndexAdd(uid string, url string) error {
+	ds := datastore.GetDataStore()
+	defer ds.Close()
 
-	start_1 := time.Now()
-	logger.Log("crawl_podcast_feed", uid)
+	main_index := ds.Collection(datastore.META_COL)
 
-	idx := indexLookup(uid)
-	if idx == nil {
-		logger.Error("crawl_podcast_feed.error.1", nil, uid)
-		metrics.Error("crawl_podcast_feed.error", "", []string{uid})
-		return
-	}
+	// add some random element to the first update point in time
+	next := util.IncT(util.Timestamp(), 10+util.Random(DEFAULT_UPDATE_RATE))
 
-	// HINT: ignore the fact that the item might be disables idx.erros > ...
+	i := PodcastIndex{uid, url, DEFAULT_UPDATE_RATE, next, 0, 0, util.Timestamp(), 0}
+	return main_index.Insert(&i)
+}
 
-	// fetch the podcast feed
-	start_2 := time.Now()
-	podcast, err := podcast.ParsePodcastFeed(idx.Feed)
-	metrics.Histogram("crawler.parse_feed", (float64)(util.ElapsedTimeSince(start_2)))
+func IndexUpdate(uid string) error {
 
-	if err != nil {
-		suspended, _ := indexBackoff(uid)
+	ds := datastore.GetDataStore()
+	defer ds.Close()
 
-		if suspended {
-			logger.Error("crawl_podcast_feed.suspended", err, uid, idx.Feed)
-			metrics.Error("crawl_podcast_feed.suspended", err.Error(), []string{uid, idx.Feed})
-		}
+	main_index := ds.Collection(datastore.META_COL)
 
-		return
-	}
+	i := PodcastIndex{}
+	err := main_index.Find(bson.M{"uid": uid}).One(&i)
 
-	// add to podcast metadata index
-	is_new, err := podcastAdd(podcast)
-	if err != nil {
-		logger.Error("crawl_podcast_feed.error.3", err, uid, idx.Feed)
-		metrics.Error("crawl_podcast_feed.error", err.Error(), []string{uid, idx.Feed})
-
-		return
-	}
-
-	// add to the episodes metadata index
-	count, err := episodesAddAll(podcast)
-	if err != nil {
-		logger.Error("crawl_podcast_feed.error.4", err, uid, idx.Feed)
-		metrics.Error("crawl_podcast_feed.error", err.Error(), []string{uid, idx.Feed})
-
-		return
+	if i.Feed == "" || err != nil {
+		return err
 	} else {
-		// update main metadata index
-		indexUpdate(uid)
+		i.Updated = util.Timestamp()
+		i.Next = util.IncT(i.Next, i.UpdateRate+util.RandomPlusMinus(15))
+		i.Errors = 0 // reset in case there was an erro
 
-		if count > 0 {
-			// update stats and metrics
-			if is_new {
-				metrics.Count("index.podcast.new", 1)
-				metrics.Count("index.episodes.new", count)
-			} else {
-				// new episodes added -> update the podcast.published timestamp
-				podcastUpdateTimestamp(podcast)
+		// update the DB
+		err = main_index.Update(bson.M{"uid": uid}, &i)
+	}
 
-				metrics.Count("index.episodes.update", count)
-			}
+	return err
+}
+
+func IndexBackoff(uid string) (bool, error) {
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	suspended := false
+	main_index := ds.Collection(datastore.META_COL)
+
+	i := PodcastIndex{}
+	err := main_index.Find(bson.M{"uid": uid}).One(&i)
+
+	if i.Feed == "" || err != nil {
+		return suspended, err
+	} else {
+		i.Updated = util.Timestamp()
+		i.Errors++
+
+		if i.Errors > MAX_ERRORS {
+			// just disable the UID by using a LAAAARGE next time
+			i.Next = math.MaxInt64
+			suspended = true
+		} else {
+			// + 10, 100, 1000, 10000 min ...
+			i.Next = util.IncT(i.Updated, (int)(math.Pow(10, (float64)(i.Errors))))
 		}
 
-		logger.Log("crawl_podcast_feed.done", uid, idx.Feed, strconv.FormatInt((int64)(count), 10))
-		metrics.Histogram("crawler.crawl", (float64)(util.ElapsedTimeSince(start_1)))
+		// update the DB
+		err = main_index.Update(bson.M{"uid": uid}, &i)
+	}
+
+	return suspended, err
+}
+
+func PodcastLookup(uid string) *PodcastMetadata {
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	podcast_metadata := ds.Collection(datastore.PODCASTS_COL)
+
+	p := PodcastMetadata{}
+	podcast_metadata.Find(bson.M{"uid": uid}).One(&p)
+
+	if p.Uid == "" {
+		return nil
+	} else {
+		return &p
 	}
 }
+
+func PodcastAdd(podcast *podcast.PodcastDetails) (bool, error) {
+	p := PodcastLookup(podcast.Uid)
+	if p != nil {
+		return false, nil
+	}
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	podcast_metadata := ds.Collection(datastore.PODCASTS_COL)
+
+	meta := podcastDetailsToMetadata(podcast)
+
+	// fix the published timestamp
+	now := util.Timestamp()
+	if podcast.Published > now {
+		meta.Published = now // prevents dates in the future
+	}
+
+	err := podcast_metadata.Insert(&meta)
+
+	if err != nil {
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
+func PodcastUpdateTimestamp(podcast *podcast.PodcastDetails) (bool, error) {
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	podcast_metadata := ds.Collection(datastore.PODCASTS_COL)
+
+	p := PodcastMetadata{}
+	podcast_metadata.Find(bson.M{"uid": podcast.Uid}).One(&p)
+
+	if p.Uid == "" {
+		return false, nil
+	} else {
+		now := util.Timestamp()
+		p.Updated = now
+		if podcast.Published > now {
+			p.Published = now // prevents dates in the future
+		} else {
+			p.Published = podcast.Published
+		}
+
+		// update the DB
+		err := podcast_metadata.Update(bson.M{"uid": podcast.Uid}, &p)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	return true, nil
+}
+
+func EpisodeLookup(uid string) *EpisodeMetadata {
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	episodes_metadata := ds.Collection(datastore.EPISODES_COL)
+
+	e := EpisodeMetadata{}
+	episodes_metadata.Find(bson.M{"uid": uid}).One(&e)
+
+	if e.Uid == "" {
+		return nil
+	} else {
+		return &e
+	}
+}
+
+func EpisodeAdd(episode *podcast.EpisodeDetails, puid string) (bool, error) {
+	e := EpisodeLookup(episode.Uid)
+	if e != nil {
+		return false, nil
+	}
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	episodes_metadata := ds.Collection(datastore.EPISODES_COL)
+
+	meta := episodeDetailsToMetadata(episode, puid)
+	err := episodes_metadata.Insert(&meta)
+
+	if err != nil {
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
+func EpisodesAddAll(podcast *podcast.PodcastDetails) (int, error) {
+	count := 0
+
+	for i := 0; i < len(podcast.Episodes); i++ {
+		added, err := EpisodeAdd(&podcast.Episodes[i], podcast.Uid)
+		if err != nil {
+			return 0, err
+		}
+		if added {
+			count++
+		}
+	}
+	return count, nil
+}
+
+/*
+func latestUpdatedPodcasts(limit int, page int) (*PodcastCollection, error) {
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	podcast_metadata := ds.Collection(datastore.PODCASTS_COL)
+
+	results := []PodcastMetadata{}
+	err := podcast_metadata.Find(nil).Limit(limit).Sort("-published").All(&results)
+	if err != nil {
+		return nil, err
+	}
+
+	podcasts := make([]PodcastSummary, len(results))
+	for i := 0; i < len(results); i++ {
+		podcasts[i] = podcastMetadataToSummary(&results[i])
+	}
+
+	podcastCollection := PodcastCollection{
+		len(results),
+		podcasts,
+	}
+
+	return &podcastCollection, nil
+}
+*/

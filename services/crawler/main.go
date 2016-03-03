@@ -7,6 +7,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/mindcastio/mindcastio/crawler"
+
 	"github.com/mindcastio/mindcastio/backend"
 	"github.com/mindcastio/mindcastio/backend/datastore"
 	"github.com/mindcastio/mindcastio/backend/environment"
@@ -49,14 +51,14 @@ func schedulePodcastCrawling() {
 	logger.Log("mindcast.crawler.schedule_podcast_crawling")
 
 	// search for podcasts that are candidates for crawling
-	expired := backend.SearchExpiredPodcasts(backend.DEFAULT_UPDATE_BATCH)
+	expired := crawler.SearchExpiredPodcasts(backend.DEFAULT_UPDATE_BATCH)
 	count := len(expired)
 
 	logger.Log("mindcast.crawler.schedule_podcast_crawling.scheduling", strconv.FormatInt((int64)(count), 10))
 
 	if count > 0 {
 		for i := 0; i < count; i++ {
-			go backend.CrawlPodcastFeed(expired[i].Uid)
+			go crawler.CrawlPodcastFeed(expired[i].Uid)
 		}
 		metrics.Count("crawler.scheduled", count)
 	}
