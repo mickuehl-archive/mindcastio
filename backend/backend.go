@@ -4,7 +4,6 @@ import (
 	"math"
 	"strconv"
 
-	"github.com/mindcastio/podcast-feed"
 	"gopkg.in/mgo.v2/bson"
 
 	"github.com/mindcastio/mindcastio/backend/datastore"
@@ -175,65 +174,6 @@ func PodcastLookup(uid string) *PodcastMetadata {
 	}
 }
 
-func PodcastAdd(podcast *podcast.PodcastDetails) (bool, error) {
-	p := PodcastLookup(podcast.Uid)
-	if p != nil {
-		return false, nil
-	}
-
-	ds := datastore.GetDataStore()
-	defer ds.Close()
-
-	podcast_metadata := ds.Collection(datastore.PODCASTS_COL)
-
-	meta := podcastDetailsToMetadata(podcast)
-
-	// fix the published timestamp
-	now := util.Timestamp()
-	if podcast.Published > now {
-		meta.Published = now // prevents dates in the future
-	}
-
-	err := podcast_metadata.Insert(&meta)
-
-	if err != nil {
-		return false, err
-	} else {
-		return true, nil
-	}
-}
-
-func PodcastUpdateTimestamp(podcast *podcast.PodcastDetails) (bool, error) {
-
-	ds := datastore.GetDataStore()
-	defer ds.Close()
-
-	podcast_metadata := ds.Collection(datastore.PODCASTS_COL)
-
-	p := PodcastMetadata{}
-	podcast_metadata.Find(bson.M{"uid": podcast.Uid}).One(&p)
-
-	if p.Uid == "" {
-		return false, nil
-	} else {
-		now := util.Timestamp()
-		p.Updated = now
-		if podcast.Published > now {
-			p.Published = now // prevents dates in the future
-		} else {
-			p.Published = podcast.Published
-		}
-
-		// update the DB
-		err := podcast_metadata.Update(bson.M{"uid": podcast.Uid}, &p)
-		if err != nil {
-			return false, err
-		}
-	}
-
-	return true, nil
-}
-
 func EpisodeLookup(uid string) *EpisodeMetadata {
 
 	ds := datastore.GetDataStore()
@@ -249,42 +189,6 @@ func EpisodeLookup(uid string) *EpisodeMetadata {
 	} else {
 		return &e
 	}
-}
-
-func EpisodeAdd(episode *podcast.EpisodeDetails, puid string) (bool, error) {
-	e := EpisodeLookup(episode.Uid)
-	if e != nil {
-		return false, nil
-	}
-
-	ds := datastore.GetDataStore()
-	defer ds.Close()
-
-	episodes_metadata := ds.Collection(datastore.EPISODES_COL)
-
-	meta := episodeDetailsToMetadata(episode, puid)
-	err := episodes_metadata.Insert(&meta)
-
-	if err != nil {
-		return false, err
-	} else {
-		return true, nil
-	}
-}
-
-func EpisodesAddAll(podcast *podcast.PodcastDetails) (int, error) {
-	count := 0
-
-	for i := 0; i < len(podcast.Episodes); i++ {
-		added, err := EpisodeAdd(&podcast.Episodes[i], podcast.Uid)
-		if err != nil {
-			return 0, err
-		}
-		if added {
-			count++
-		}
-	}
-	return count, nil
 }
 
 /*

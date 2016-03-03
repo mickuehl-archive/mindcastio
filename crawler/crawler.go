@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/mindcastio/podcast-feed"
-
 	"github.com/mindcastio/mindcastio/backend"
 
 	"github.com/mindcastio/mindcastio/backend/datastore"
@@ -52,7 +50,7 @@ func CrawlPodcastFeed(uid string) {
 
 	// fetch the podcast feed
 	start_2 := time.Now()
-	podcast, err := podcast.ParsePodcastFeed(idx.Feed)
+	podcast, err := ParsePodcastFeed(idx.Feed)
 	metrics.Histogram("crawler.parse_feed", (float64)(util.ElapsedTimeSince(start_2)))
 
 	if err != nil {
@@ -67,7 +65,7 @@ func CrawlPodcastFeed(uid string) {
 	}
 
 	// add to podcast metadata index
-	is_new, err := backend.PodcastAdd(podcast)
+	is_new, err := PodcastAdd(podcast)
 	if err != nil {
 		logger.Error("crawl_podcast_feed.error.3", err, uid, idx.Feed)
 		metrics.Error("crawl_podcast_feed.error", err.Error(), []string{uid, idx.Feed})
@@ -76,7 +74,7 @@ func CrawlPodcastFeed(uid string) {
 	}
 
 	// add to the episodes metadata index
-	count, err := backend.EpisodesAddAll(podcast)
+	count, err := EpisodesAddAll(podcast)
 	if err != nil {
 		logger.Error("crawl_podcast_feed.error.4", err, uid, idx.Feed)
 		metrics.Error("crawl_podcast_feed.error", err.Error(), []string{uid, idx.Feed})
@@ -93,7 +91,7 @@ func CrawlPodcastFeed(uid string) {
 				metrics.Count("index.episodes.new", count)
 			} else {
 				// new episodes added -> update the podcast.published timestamp
-				backend.PodcastUpdateTimestamp(podcast)
+				PodcastUpdateTimestamp(podcast)
 
 				metrics.Count("index.episodes.update", count)
 			}
@@ -102,4 +100,143 @@ func CrawlPodcastFeed(uid string) {
 		logger.Log("crawl_podcast_feed.done", uid, idx.Feed, strconv.FormatInt((int64)(count), 10))
 		metrics.Histogram("crawler.crawl", (float64)(util.ElapsedTimeSince(start_1)))
 	}
+}
+
+func PodcastAdd(podcast *Podcast) (bool, error) {
+	p := backend.PodcastLookup(podcast.Uid)
+	if p != nil {
+		return false, nil
+	}
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	podcast_metadata := ds.Collection(datastore.PODCASTS_COL)
+
+	meta := podcastDetailsToMetadata(podcast)
+
+	// fix the published timestamp
+	now := util.Timestamp()
+	if podcast.Published > now {
+		meta.Published = now // prevents dates in the future
+	}
+
+	err := podcast_metadata.Insert(&meta)
+
+	if err != nil {
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
+func PodcastUpdateTimestamp(podcast *Podcast) (bool, error) {
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	podcast_metadata := ds.Collection(datastore.PODCASTS_COL)
+
+	p := backend.PodcastMetadata{}
+	podcast_metadata.Find(bson.M{"uid": podcast.Uid}).One(&p)
+
+	if p.Uid == "" {
+		return false, nil
+	} else {
+		now := util.Timestamp()
+		p.Updated = now
+		if podcast.Published > now {
+			p.Published = now // prevents dates in the future
+		} else {
+			p.Published = podcast.Published
+		}
+
+		// update the DB
+		err := podcast_metadata.Update(bson.M{"uid": podcast.Uid}, &p)
+		if err != nil {
+			return false, err
+		}
+	}
+
+	return true, nil
+}
+
+func EpisodeAdd(episode *Episode, puid string) (bool, error) {
+	e := backend.EpisodeLookup(episode.Uid)
+	if e != nil {
+		return false, nil
+	}
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	episodes_metadata := ds.Collection(datastore.EPISODES_COL)
+
+	meta := episodeDetailsToMetadata(episode, puid)
+	err := episodes_metadata.Insert(&meta)
+
+	if err != nil {
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
+func EpisodesAddAll(podcast *Podcast) (int, error) {
+	count := 0
+
+	for i := 0; i < len(podcast.Episodes); i++ {
+		added, err := EpisodeAdd(&podcast.Episodes[i], podcast.Uid)
+		if err != nil {
+			return 0, err
+		}
+		if added {
+			count++
+		}
+	}
+	return count, nil
+}
+
+func podcastDetailsToMetadata(podcast *Podcast) *backend.PodcastMetadata {
+	meta := backend.PodcastMetadata{
+		podcast.Uid,
+		podcast.Title,
+		podcast.Subtitle,
+		podcast.Url,
+		podcast.Feed,
+		podcast.Description,
+		podcast.Published,
+		podcast.Language,
+		podcast.Image,
+		podcast.Owner.Name,
+		podcast.Owner.Email,
+		"",
+		0,
+		0,
+		0,
+		0,
+		util.Timestamp(),
+		0,
+	}
+	return &meta
+}
+
+func episodeDetailsToMetadata(episode *Episode, puid string) *backend.EpisodeMetadata {
+	meta := backend.EpisodeMetadata{
+		episode.Uid,
+		episode.Title,
+		episode.Url,
+		episode.Description,
+		episode.Published,
+		episode.Duration,
+		episode.Author,
+		episode.Content.Url,
+		episode.Content.Type,
+		episode.Content.Size,
+		puid,
+		0,
+		util.Timestamp(),
+		0,
+	}
+	return &meta
 }

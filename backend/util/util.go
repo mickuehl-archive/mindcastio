@@ -10,7 +10,11 @@ import (
 	"math/rand"
 	"net/http"
 	"time"
+	"os"
+	"bytes"
+	"log"
 )
+
 
 func Timestamp() int64 {
 	return time.Now().Unix()
@@ -84,4 +88,15 @@ func GetJson(url string, target interface{}) error {
 	defer r.Body.Close()
 
 	return json.NewDecoder(r.Body).Decode(target)
+}
+
+func PrettyPrintJson(target interface{})  {
+	b, err := json.Marshal(target)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var out bytes.Buffer
+	json.Indent(&out, b, " ", " ")
+	out.WriteTo(os.Stdout)
 }
