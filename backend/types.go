@@ -5,13 +5,13 @@ const (
 	DEFAULT_CRAWLER_SCHEDULE   int64 = 120  // sec
 	DEFAULT_INDEXER_SCHEDULE   int64 = 120  // sec
 	DEFAULT_UPDATE_BATCH       int   = 50 	// how many podcasts to update per crawler run
-	DEFAULT_INDEX_UPDATE_BATCH int   = 400 // how many podcasts or episodes to send to elasicsearch each batch
+	DEFAULT_INDEX_UPDATE_BATCH int   = 500 // how many podcasts or episodes to send to elasicsearch each batch
 	MAX_ERRORS                 int   = 4
 	SEARCH_REVISION            int   = 1
 )
 
 type (
-	
+
 	PodcastIndex struct {
 		Uid        string `json:"uid"`
 		Feed       string `json:"feed"`
@@ -88,25 +88,4 @@ type (
 		Updated int64 `json:"updated"`
 	}
 
-	PodcastMetadataSearch struct {
-		Uid         string `json:"uid"`
-		Title       string `json:"title"`
-		Subtitle    string `json:"subtitle"`
-		Description string `json:"description"`
-		Published   int64  `json:"published"`
-		Language    string `json:"language"`
-		OwnerName   string `json:"owner_name"`
-		OwnerEmail  string `json:"owner_email"`
-		Tags        string `json:"tags"`
-	}
-
-	EpisodeMetadataSearch struct {
-		Uid         string `json:"uid"`
-		Title       string `json:"title"`
-		Link        string `json:"link"`
-		Description string `json:"description"`
-		Published   int64  `json:"published"`
-		Author      string `json:"author"`
-		PodcastUid  string `json:"puid"`
-	}
 )

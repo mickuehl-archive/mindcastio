@@ -173,27 +173,6 @@ func podcastUpdateTimestamp(podcast *podcast.PodcastDetails) (bool, error) {
 	return true, nil
 }
 
-func podcastSearchNotIndexd(limit int, version int) []PodcastMetadata {
-
-	ds := datastore.GetDataStore()
-	defer ds.Close()
-
-	podcast_metadata := ds.Collection(datastore.PODCASTS_COL)
-
-	results := []PodcastMetadata{}
-	q := bson.M{"indexversion": bson.M{"$lt": version}}
-
-	if limit <= 0 {
-		// return all
-		podcast_metadata.Find(q).All(&results)
-	} else {
-		// with a limit
-		podcast_metadata.Find(q).Limit(limit).All(&results)
-	}
-
-	return results
-}
-
 func episodeLookup(uid string) *EpisodeMetadata {
 
 	ds := datastore.GetDataStore()
@@ -230,27 +209,6 @@ func episodeAdd(episode *podcast.EpisodeDetails, puid string) (bool, error) {
 	} else {
 		return true, nil
 	}
-}
-
-func episodesSearchNotIndexd(limit int, version int) []EpisodeMetadata {
-
-	ds := datastore.GetDataStore()
-	defer ds.Close()
-
-	episodes_metadata := ds.Collection(datastore.EPISODES_COL)
-
-	results := []EpisodeMetadata{}
-	q := bson.M{"indexversion": bson.M{"$lt": version}}
-
-	if limit <= 0 {
-		// return all
-		episodes_metadata.Find(q).All(&results)
-	} else {
-		// with a limit
-		episodes_metadata.Find(q).Limit(limit).All(&results)
-	}
-
-	return results
 }
 
 func episodesAddAll(podcast *podcast.PodcastDetails) (int, error) {

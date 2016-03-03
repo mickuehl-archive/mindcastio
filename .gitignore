@@ -1,7 +1,7 @@
 # services
 services/crawler/crawler
 services/indexer/indexer
-services/search/search
+services/api/api
 
 .vagrant/
 TODO.md

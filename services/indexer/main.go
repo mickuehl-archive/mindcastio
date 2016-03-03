@@ -6,6 +6,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/mindcastio/mindcastio/search"
 	"github.com/mindcastio/mindcastio/backend"
 	"github.com/mindcastio/mindcastio/backend/environment"
 	"github.com/mindcastio/mindcastio/backend/services/logger"
@@ -40,8 +41,8 @@ func main() {
 
 	for {
 		<-background_channel
-		backend.SchedulePodcastIndexing()
-		backend.ScheduleEpisodeIndexing()
+		search.SchedulePodcastIndexing()
+		search.ScheduleEpisodeIndexing()
 	}
 }
 

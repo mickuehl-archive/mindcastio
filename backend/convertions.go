@@ -62,29 +62,3 @@ func podcastMetadataToSummary(p *PodcastMetadata) PodcastSummary {
 		p.Published,
 	}
 }
-
-func podcastMetadataToSearch(p *PodcastMetadata) PodcastMetadataSearch {
-	return PodcastMetadataSearch{
-		p.Uid,
-		p.Title,
-		p.Subtitle,
-		p.Description,
-		p.Published,
-		p.Language,
-		p.OwnerName,
-		p.OwnerEmail,
-		p.Tags,
-	}
-}
-
-func episodeMetadataToSearch(e *EpisodeMetadata) EpisodeMetadataSearch {
-	return EpisodeMetadataSearch{
-		e.Uid,
-		e.Title,
-		e.Url,
-		e.Description,
-		e.Published,
-		e.Author,
-		e.PodcastUid,
-	}
-}
