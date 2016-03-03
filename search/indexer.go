@@ -1,17 +1,17 @@
 package search
 
 import (
-	"strings"
 	"gopkg.in/mgo.v2/bson"
 	"strconv"
+	"strings"
 
 	"github.com/franela/goreq"
 
 	"github.com/mindcastio/mindcastio/backend"
 	"github.com/mindcastio/mindcastio/backend/datastore"
+	"github.com/mindcastio/mindcastio/backend/environment"
 	"github.com/mindcastio/mindcastio/backend/logger"
 	"github.com/mindcastio/mindcastio/backend/metrics"
-	"github.com/mindcastio/mindcastio/backend/environment"
 	"github.com/mindcastio/mindcastio/backend/util"
 )
 
@@ -37,7 +37,6 @@ type (
 		Author      string `json:"author"`
 		PodcastUid  string `json:"puid"`
 	}
-
 )
 
 func SchedulePodcastIndexing() {

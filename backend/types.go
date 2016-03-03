@@ -1,17 +1,16 @@
 package backend
 
 const (
-	DEFAULT_UPDATE_RATE        int   = 720  // min.
-	DEFAULT_CRAWLER_SCHEDULE   int64 = 120  // sec
-	DEFAULT_INDEXER_SCHEDULE   int64 = 120  // sec
-	DEFAULT_UPDATE_BATCH       int   = 50 	// how many podcasts to update per crawler run
+	DEFAULT_UPDATE_RATE        int   = 720 // min.
+	DEFAULT_CRAWLER_SCHEDULE   int64 = 120 // sec
+	DEFAULT_INDEXER_SCHEDULE   int64 = 120 // sec
+	DEFAULT_UPDATE_BATCH       int   = 50  // how many podcasts to update per crawler run
 	DEFAULT_INDEX_UPDATE_BATCH int   = 500 // how many podcasts or episodes to send to elasicsearch each batch
 	MAX_ERRORS                 int   = 4
 	SEARCH_REVISION            int   = 1
 )
 
 type (
-
 	PodcastIndex struct {
 		Uid        string `json:"uid"`
 		Feed       string `json:"feed"`
@@ -24,26 +23,26 @@ type (
 	}
 
 	/*
-	PodcastCollection struct {
-		Count    int              `json:"count"`
-		Podcasts []PodcastSummary `json:"podcasts"`
-	}
+		PodcastCollection struct {
+			Count    int              `json:"count"`
+			Podcasts []PodcastSummary `json:"podcasts"`
+		}
 
-	PodcastSummary struct {
-		Uid         string `json:"uid"`
-		Title       string `json:"title"`
-		Author      string `json:"author"`
-		Description string `json:"description"`
-		Url         string `json:"url"`
-		Feed        string `json:"feed"`
-		ImageUrl    string `json:"image_url"`
+		PodcastSummary struct {
+			Uid         string `json:"uid"`
+			Title       string `json:"title"`
+			Author      string `json:"author"`
+			Description string `json:"description"`
+			Url         string `json:"url"`
+			Feed        string `json:"feed"`
+			ImageUrl    string `json:"image_url"`
 
-		// internal admin stuff
+			// internal admin stuff
 
-		Published int64 `json:"published"`
-	}
+			Published int64 `json:"published"`
+		}
 	*/
-	
+
 	PodcastMetadata struct {
 		Uid         string `json:"uid"`
 		Title       string `json:"title"`
@@ -89,5 +88,4 @@ type (
 		Created int64 `json:"created"`
 		Updated int64 `json:"updated"`
 	}
-
 )

@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/mindcastio/mindcastio/backend/util"
-
 )
 
 const (

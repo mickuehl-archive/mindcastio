@@ -1,7 +1,6 @@
 package main
 
 import (
-
 	"os"
 	"os/signal"
 	"strconv"
@@ -9,10 +8,10 @@ import (
 	"time"
 
 	"github.com/mindcastio/mindcastio/backend"
+	"github.com/mindcastio/mindcastio/backend/datastore"
 	"github.com/mindcastio/mindcastio/backend/environment"
 	"github.com/mindcastio/mindcastio/backend/logger"
 	"github.com/mindcastio/mindcastio/backend/metrics"
-	"github.com/mindcastio/mindcastio/backend/datastore"
 )
 
 func main() {

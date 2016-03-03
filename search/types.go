@@ -22,5 +22,4 @@ type (
 		Score     int   `jsonapi:"attr,score"` // scaled to [0..100]
 		Published int64 `jsonapi:"attr,published"`
 	}
-	
 )

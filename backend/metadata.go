@@ -6,8 +6,8 @@ import (
 
 	"github.com/mindcastio/podcast-feed"
 
-	"github.com/mindcastio/mindcastio/backend/util"
 	"github.com/mindcastio/mindcastio/backend/datastore"
+	"github.com/mindcastio/mindcastio/backend/util"
 )
 
 func indexLookup(uid string) *PodcastIndex {
