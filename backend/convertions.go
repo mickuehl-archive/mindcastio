@@ -50,6 +50,7 @@ func episodeDetailsToMetadata(episode *podcast.EpisodeDetails, puid string) *Epi
 	return &meta
 }
 
+/*
 func podcastMetadataToSummary(p *PodcastMetadata) PodcastSummary {
 	return PodcastSummary{
 		p.Uid,
@@ -62,3 +63,4 @@ func podcastMetadataToSummary(p *PodcastMetadata) PodcastSummary {
 		p.Published,
 	}
 }
+*/

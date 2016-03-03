@@ -226,6 +226,7 @@ func episodesAddAll(podcast *podcast.PodcastDetails) (int, error) {
 	return count, nil
 }
 
+/*
 func latestUpdatedPodcasts(limit int, page int) (*PodcastCollection, error) {
 
 	ds := datastore.GetDataStore()
@@ -251,3 +252,4 @@ func latestUpdatedPodcasts(limit int, page int) (*PodcastCollection, error) {
 
 	return &podcastCollection, nil
 }
+*/

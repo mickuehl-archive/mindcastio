@@ -22,27 +22,5 @@ type (
 		Score     int   `jsonapi:"attr,score"` // scaled to [0..100]
 		Published int64 `jsonapi:"attr,published"`
 	}
-
-	PodcastMetadataSearch struct {
-		Uid         string `json:"uid"`
-		Title       string `json:"title"`
-		Subtitle    string `json:"subtitle"`
-		Description string `json:"description"`
-		Published   int64  `json:"published"`
-		Language    string `json:"language"`
-		OwnerName   string `json:"owner_name"`
-		OwnerEmail  string `json:"owner_email"`
-		Tags        string `json:"tags"`
-	}
-
-	EpisodeMetadataSearch struct {
-		Uid         string `json:"uid"`
-		Title       string `json:"title"`
-		Link        string `json:"link"`
-		Description string `json:"description"`
-		Published   int64  `json:"published"`
-		Author      string `json:"author"`
-		PodcastUid  string `json:"puid"`
-	}
 	
 )

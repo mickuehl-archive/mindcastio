@@ -1,8 +1,10 @@
 package search
 
 import (
-	"github.com/mindcastio/mindcastio/backend/util"
 	"strings"
+
+	"github.com/mindcastio/mindcastio/backend/util"
+
 )
 
 const (

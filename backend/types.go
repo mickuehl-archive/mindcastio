@@ -23,6 +23,7 @@ type (
 		Updated    int64  `json:"updated"`
 	}
 
+	/*
 	PodcastCollection struct {
 		Count    int              `json:"count"`
 		Podcasts []PodcastSummary `json:"podcasts"`
@@ -41,7 +42,8 @@ type (
 
 		Published int64 `json:"published"`
 	}
-
+	*/
+	
 	PodcastMetadata struct {
 		Uid         string `json:"uid"`
 		Title       string `json:"title"`

@@ -15,50 +15,37 @@ import (
 	"github.com/mindcastio/mindcastio/backend/util"
 )
 
-func PodcastAddToSearchIndex(podcast *backend.PodcastMetadata) error {
-
-	uri := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "/search/podcast/", podcast.Uid}, "")
-	payload := podcastMetadataToSearch(podcast)
-
-	// post the payload to elasticsearch
-	res, err := goreq.Request{
-		Method:      "PUT",
-		Uri:         uri,
-		ContentType: "application/json",
-		Body:        payload,
-	}.Do()
-
-	if res != nil {
-		res.Body.Close()
+type (
+	PodcastSearchMetadata struct {
+		Uid         string `json:"uid"`
+		Title       string `json:"title"`
+		Subtitle    string `json:"subtitle"`
+		Description string `json:"description"`
+		Published   int64  `json:"published"`
+		Language    string `json:"language"`
+		OwnerName   string `json:"owner_name"`
+		OwnerEmail  string `json:"owner_email"`
+		Tags        string `json:"tags"`
 	}
-	return err
-}
 
-func EpisodeAddToSearchIndex(episode *backend.EpisodeMetadata) error {
-
-	uri := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "/search/episode/", episode.Uid}, "")
-	payload := episodeMetadataToSearch(episode)
-
-	// post the payload to elasticsearch
-	res, err := goreq.Request{
-		Method:      "PUT",
-		Uri:         uri,
-		ContentType: "application/json",
-		Body:        payload,
-	}.Do()
-
-	if res != nil {
-		res.Body.Close()
+	EpisodeSearchMetadata struct {
+		Uid         string `json:"uid"`
+		Title       string `json:"title"`
+		Link        string `json:"link"`
+		Description string `json:"description"`
+		Published   int64  `json:"published"`
+		Author      string `json:"author"`
+		PodcastUid  string `json:"puid"`
 	}
-	return err
-}
+
+)
 
 func SchedulePodcastIndexing() {
 
 	logger.Log("schedule_podcast_indexing")
 
 	// search for podcasts that are candidates for indexing
-	notIndexed := podcastSearchNotIndexd(backend.DEFAULT_INDEX_UPDATE_BATCH, backend.SEARCH_REVISION)
+	notIndexed := podcastSearchNotIndexed(backend.DEFAULT_INDEX_UPDATE_BATCH, backend.SEARCH_REVISION)
 	count := len(notIndexed)
 
 	logger.Log("schedule_podcast_indexing.scheduling", strconv.FormatInt((int64)(count), 10))
@@ -70,7 +57,7 @@ func SchedulePodcastIndexing() {
 		podcast_metadata := ds.Collection(datastore.PODCASTS_COL)
 
 		for i := 0; i < count; i++ {
-			err := PodcastAddToSearchIndex(&notIndexed[i])
+			err := podcastAddToSearchIndex(&notIndexed[i])
 			if err != nil {
 				logger.Error("schedule_podcast_indexing.error.1", err, notIndexed[i].Uid)
 				metrics.Error("schedule_podcast_indexing.error.1", err.Error(), []string{notIndexed[i].Uid})
@@ -98,7 +85,7 @@ func ScheduleEpisodeIndexing() {
 	logger.Log("schedule_episode_indexing")
 
 	// search for podcasts that are candidates for indexing
-	notIndexed := episodesSearchNotIndexd(backend.DEFAULT_INDEX_UPDATE_BATCH, backend.SEARCH_REVISION)
+	notIndexed := episodesSearchNotIndexed(backend.DEFAULT_INDEX_UPDATE_BATCH, backend.SEARCH_REVISION)
 	count := len(notIndexed)
 
 	logger.Log("schedule_episode_indexing.scheduling", strconv.FormatInt((int64)(count), 10))
@@ -110,7 +97,7 @@ func ScheduleEpisodeIndexing() {
 		episodes_metadata := ds.Collection(datastore.EPISODES_COL)
 
 		for i := 0; i < count; i++ {
-			err := EpisodeAddToSearchIndex(&notIndexed[i])
+			err := episodeAddToSearchIndex(&notIndexed[i])
 			if err != nil {
 				logger.Error("schedule_episode_indexing.error.1", err, notIndexed[i].Uid)
 				metrics.Error("schedule_episode_indexing.error.1", err.Error(), []string{notIndexed[i].Uid})
@@ -133,7 +120,65 @@ func ScheduleEpisodeIndexing() {
 	logger.Log("schedule_episode_indexing.done")
 }
 
-func podcastSearchNotIndexd(limit int, version int) []backend.PodcastMetadata {
+func podcastAddToSearchIndex(podcast *backend.PodcastMetadata) error {
+
+	uri := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "/search/podcast/", podcast.Uid}, "")
+
+	payload := PodcastSearchMetadata{
+		podcast.Uid,
+		podcast.Title,
+		podcast.Subtitle,
+		podcast.Description,
+		podcast.Published,
+		podcast.Language,
+		podcast.OwnerName,
+		podcast.OwnerEmail,
+		podcast.Tags,
+	}
+
+	// post the payload to elasticsearch
+	res, err := goreq.Request{
+		Method:      "PUT",
+		Uri:         uri,
+		ContentType: "application/json",
+		Body:        payload,
+	}.Do()
+
+	if res != nil {
+		res.Body.Close()
+	}
+	return err
+}
+
+func episodeAddToSearchIndex(episode *backend.EpisodeMetadata) error {
+
+	uri := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "/search/episode/", episode.Uid}, "")
+
+	payload := EpisodeSearchMetadata{
+		episode.Uid,
+		episode.Title,
+		episode.Url,
+		episode.Description,
+		episode.Published,
+		episode.Author,
+		episode.PodcastUid,
+	}
+
+	// post the payload to elasticsearch
+	res, err := goreq.Request{
+		Method:      "PUT",
+		Uri:         uri,
+		ContentType: "application/json",
+		Body:        payload,
+	}.Do()
+
+	if res != nil {
+		res.Body.Close()
+	}
+	return err
+}
+
+func podcastSearchNotIndexed(limit int, version int) []backend.PodcastMetadata {
 
 	ds := datastore.GetDataStore()
 	defer ds.Close()
@@ -154,7 +199,7 @@ func podcastSearchNotIndexd(limit int, version int) []backend.PodcastMetadata {
 	return results
 }
 
-func episodesSearchNotIndexd(limit int, version int) []backend.EpisodeMetadata {
+func episodesSearchNotIndexed(limit int, version int) []backend.EpisodeMetadata {
 
 	ds := datastore.GetDataStore()
 	defer ds.Close()
@@ -173,30 +218,4 @@ func episodesSearchNotIndexd(limit int, version int) []backend.EpisodeMetadata {
 	}
 
 	return results
-}
-
-func podcastMetadataToSearch(p *backend.PodcastMetadata) PodcastMetadataSearch {
-	return PodcastMetadataSearch{
-		p.Uid,
-		p.Title,
-		p.Subtitle,
-		p.Description,
-		p.Published,
-		p.Language,
-		p.OwnerName,
-		p.OwnerEmail,
-		p.Tags,
-	}
-}
-
-func episodeMetadataToSearch(e *backend.EpisodeMetadata) EpisodeMetadataSearch {
-	return EpisodeMetadataSearch{
-		e.Uid,
-		e.Title,
-		e.Url,
-		e.Description,
-		e.Published,
-		e.Author,
-		e.PodcastUid,
-	}
 }
