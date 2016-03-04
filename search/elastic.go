@@ -36,7 +36,7 @@ type (
 	}
 )
 
-func searchElastic(q string) ([]*Result, error) {
+func searchElastic(q string) (*SearchResult, error) {
 
 	query := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "podcasts/podcast/_search?size=50&q=", q}, "")
 	// FIXME we currently only search the podcast index, episodes are ignored !
@@ -48,8 +48,8 @@ func searchElastic(q string) ([]*Result, error) {
 	for i := range result.Hits.Hits {
 		podcasts[i] = elasticToResult(&result.Hits.Hits[i])
 	}
-	return podcasts, err
 
+	return &SearchResult{"", result.Hits.Total, q, podcasts}, err
 }
 
 func elasticToResult(item *HitDetail) *Result {
