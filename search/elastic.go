@@ -38,7 +38,7 @@ type (
 
 func searchElastic(q string) ([]*Result, error) {
 
-	query := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "search/podcast/_search?size=50&q=", q}, "")
+	query := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "podcasts/podcast/_search?size=50&q=", q}, "")
 	// FIXME we currently only search the podcast index, episodes are ignored !
 
 	result := ElasticResponse{}

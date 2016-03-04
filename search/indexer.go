@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/franela/goreq"
-
 	"github.com/mindcastio/mindcastio/backend"
 	"github.com/mindcastio/mindcastio/backend/datastore"
 	"github.com/mindcastio/mindcastio/backend/environment"
@@ -16,27 +14,17 @@ import (
 )
 
 type (
+
 	PodcastSearchMetadata struct {
 		Uid         string `json:"uid"`
 		Title       string `json:"title"`
 		Subtitle    string `json:"subtitle"`
 		Description string `json:"description"`
-		Published   int64  `json:"published"`
 		Language    string `json:"language"`
 		OwnerName   string `json:"owner_name"`
 		OwnerEmail  string `json:"owner_email"`
-		Tags        string `json:"tags"`
 	}
 
-	EpisodeSearchMetadata struct {
-		Uid         string `json:"uid"`
-		Title       string `json:"title"`
-		Link        string `json:"link"`
-		Description string `json:"description"`
-		Published   int64  `json:"published"`
-		Author      string `json:"author"`
-		PodcastUid  string `json:"puid"`
-	}
 )
 
 func SchedulePodcastIndexing() {
@@ -121,60 +109,42 @@ func ScheduleEpisodeIndexing() {
 
 func podcastAddToSearchIndex(podcast *backend.PodcastMetadata) error {
 
-	uri := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "/search/podcast/", podcast.Uid}, "")
+	uri := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "/podcasts/podcast/", podcast.Uid}, "")
 
 	payload := PodcastSearchMetadata{
 		podcast.Uid,
 		podcast.Title,
 		podcast.Subtitle,
 		podcast.Description,
-		podcast.Published,
 		podcast.Language,
 		podcast.OwnerName,
 		podcast.OwnerEmail,
-		podcast.Tags,
 	}
 
-	// post the payload to elasticsearch
-	res, err := goreq.Request{
-		Method:      "PUT",
-		Uri:         uri,
-		ContentType: "application/json",
-		Body:        payload,
-	}.Do()
+	return util.PutJson(uri, payload)
 
-	if res != nil {
-		res.Body.Close()
-	}
-	return err
 }
 
 func episodeAddToSearchIndex(episode *backend.EpisodeMetadata) error {
 
-	uri := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "/search/episode/", episode.Uid}, "")
+	podcast := backend.PodcastLookup(episode.PodcastUid)
+	// FIXME we simply assume no errors here !!
 
-	payload := EpisodeSearchMetadata{
+	id := strings.Join([]string{episode.PodcastUid, episode.Uid}, "-")
+	uri := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "/podcasts/episode/", id}, "")
+
+	payload := PodcastSearchMetadata{
 		episode.Uid,
 		episode.Title,
-		episode.Url,
+		"",
 		episode.Description,
-		episode.Published,
+		podcast.Language,
 		episode.Author,
-		episode.PodcastUid,
+		"",
 	}
 
-	// post the payload to elasticsearch
-	res, err := goreq.Request{
-		Method:      "PUT",
-		Uri:         uri,
-		ContentType: "application/json",
-		Body:        payload,
-	}.Do()
-
-	if res != nil {
-		res.Body.Close()
-	}
-	return err
+	return util.PutJson(uri, payload)
+	
 }
 
 func podcastSearchNotIndexed(limit int, version int) []backend.PodcastMetadata {
