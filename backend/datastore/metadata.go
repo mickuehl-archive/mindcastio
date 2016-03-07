@@ -62,7 +62,7 @@ func createIndex() {
 		logger.Error("backend.datastore.create_index", err, "")
 	}
 	// podcast_metadata.index_version
-	err = podcast_metadata.EnsureIndex(mgo.Index{Key: []string{"index_version"}, Unique: false, DropDups: true, Background: true, Sparse: true})
+	err = podcast_metadata.EnsureIndex(mgo.Index{Key: []string{"version"}, Unique: false, DropDups: true, Background: true, Sparse: true})
 	if err != nil {
 		logger.Error("backend.datastore.create_index", err, "")
 	}
@@ -79,18 +79,13 @@ func createIndex() {
 	if err != nil {
 		logger.Error("backend.datastore.create_index", err, "")
 	}
-	// episodes_metadata.asset_type
-	err = episodes_metadata.EnsureIndex(mgo.Index{Key: []string{"asset_type"}, Unique: false, DropDups: true, Background: true, Sparse: true})
-	if err != nil {
-		logger.Error("backend.datastore.create_index", err, "")
-	}
 	// episodes_metadata.puid
 	err = episodes_metadata.EnsureIndex(mgo.Index{Key: []string{"puid"}, Unique: false, DropDups: true, Background: true, Sparse: true})
 	if err != nil {
 		logger.Error("backend.datastore.create_index", err, "")
 	}
 	// episodes_metadata.index_version
-	err = episodes_metadata.EnsureIndex(mgo.Index{Key: []string{"index_version"}, Unique: false, DropDups: true, Background: true, Sparse: true})
+	err = episodes_metadata.EnsureIndex(mgo.Index{Key: []string{"version"}, Unique: false, DropDups: true, Background: true, Sparse: true})
 	if err != nil {
 		logger.Error("backend.datastore.create_index", err, "")
 	}

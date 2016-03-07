@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	
+
 	"github.com/mindcastio/mindcastio/backend"
 	"github.com/mindcastio/mindcastio/backend/datastore"
 	"github.com/mindcastio/mindcastio/backend/environment"
@@ -54,7 +54,7 @@ func SchedulePodcastIndexing() {
 			}
 
 			// update the metadata
-			notIndexed[i].IndexVersion = backend.SEARCH_REVISION
+			notIndexed[i].Version = backend.SEARCH_REVISION
 			notIndexed[i].Updated = util.Timestamp()
 			err = podcast_metadata.Update(bson.M{"uid": notIndexed[i].Uid}, &notIndexed[i])
 			if err != nil {
@@ -96,7 +96,7 @@ func ScheduleEpisodeIndexing() {
 			}
 
 			// update the metadata
-			notIndexed[i].IndexVersion = backend.SEARCH_REVISION
+			notIndexed[i].Version = backend.SEARCH_REVISION
 			notIndexed[i].Updated = util.Timestamp()
 			err = episodes_metadata.Update(bson.M{"uid": notIndexed[i].Uid}, &notIndexed[i])
 			if err != nil {
@@ -160,7 +160,7 @@ func podcastSearchNotIndexed(limit int, version int) []backend.PodcastMetadata {
 	podcast_metadata := ds.Collection(datastore.PODCASTS_COL)
 
 	results := []backend.PodcastMetadata{}
-	q := bson.M{"indexversion": bson.M{"$lt": version}}
+	q := bson.M{"version": bson.M{"$lt": version}}
 
 	if limit <= 0 {
 		// return all
@@ -181,7 +181,7 @@ func episodesSearchNotIndexed(limit int, version int) []backend.EpisodeMetadata 
 	episodes_metadata := ds.Collection(datastore.EPISODES_COL)
 
 	results := []backend.EpisodeMetadata{}
-	q := bson.M{"indexversion": bson.M{"$lt": version}}
+	q := bson.M{"version": bson.M{"$lt": version}}
 
 	if limit <= 0 {
 		// return all

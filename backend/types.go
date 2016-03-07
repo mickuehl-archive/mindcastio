@@ -63,7 +63,7 @@ type (
 		Score1       int64 `json:"score1"` // scores, not defined yet
 		Score2       int64 `json:"score2"`
 		Score3       int64 `json:"score3"`
-		IndexVersion int   `json:"index_version"`
+		Version int   `json:"version"`
 
 		Created int64 `json:"created"`
 		Updated int64 `json:"updated"`
@@ -84,7 +84,7 @@ type (
 		// internal admin stuff
 
 		PodcastUid   string `json:"puid"`
-		IndexVersion int    `json:"index_version"`
+		Version int    `json:"version"`
 
 		Created int64 `json:"created"`
 		Updated int64 `json:"updated"`
