@@ -20,7 +20,7 @@ func SchedulePodcastCrawling() {
 	expired := searchExpiredPodcasts(backend.DEFAULT_UPDATE_BATCH)
 	count := len(expired)
 
-	logger.Log("mindcast.crawler.schedule_podcast_crawling.scheduling", strconv.FormatInt((int64)(count), 10))
+	logger.Log("crawler.schedule_podcast_crawling.scheduling", strconv.FormatInt((int64)(count), 10))
 
 	if count > 0 {
 		for i := 0; i < count; i++ {
@@ -31,7 +31,7 @@ func SchedulePodcastCrawling() {
 		metrics.Count("crawler.scheduled", count)
 	}
 
-	logger.Log("mindcast.crawler.schedule_podcast_crawling.done")
+	logger.Log("crawler.schedule_podcast_crawling.done")
 }
 
 func CrawlPodcastFeed(uid string) {
