@@ -1,6 +1,7 @@
 package search
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/mindcastio/mindcastio/backend"
@@ -36,9 +37,12 @@ type (
 	}
 )
 
-func searchElastic(q string) (*SearchResult, error) {
+func searchElastic(q string, page int, size int) (*SearchResult, error) {
 
-	query := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "podcasts/podcast/_search?size=50&q=", q}, "")
+	from := size * (page - 1)
+	query1 := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "podcasts/podcast/_search?q=", q}, "")
+	query := strings.Join([]string{query1, "&size=", strconv.FormatInt((int64)(size), 10), "&from=", strconv.FormatInt((int64)(from), 10)}, "")
+
 	// FIXME we currently only search the podcast index, episodes are ignored !
 
 	result := ElasticResponse{}

@@ -15,7 +15,6 @@ import (
 )
 
 type (
-
 	PodcastSearchMetadata struct {
 		Uid         string `json:"uid"`
 		Title       string `json:"title"`
@@ -25,7 +24,6 @@ type (
 		OwnerName   string `json:"owner_name"`
 		OwnerEmail  string `json:"owner_email"`
 	}
-
 )
 
 func SchedulePodcastIndexing() {

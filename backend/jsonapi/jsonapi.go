@@ -34,7 +34,7 @@ func MarshalMany(models []interface{}) (*ManyPayload, error) {
 	var data []*Node
 	included := make(map[string]*Node)
 
-	for i := 0; i < len(models); i++ {
+	for i := range models {
 		model := models[i]
 
 		node, err := visitModelNode(model, &included, true)

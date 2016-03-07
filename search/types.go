@@ -1,5 +1,9 @@
 package search
 
+const (
+	PAGE_SIZE int = 25
+)
+
 type (
 	SearchResult struct {
 		Uid        string    `jsonapi:"primary,search"`

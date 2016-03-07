@@ -116,7 +116,7 @@ func IndexUpdate(uid string) error {
 	} else {
 		i.Updated = util.Timestamp()
 		i.Next = util.IncT(i.Next, i.UpdateRate+util.RandomPlusMinus(15)) // FIXME adjust next in case there was a downtime > i.UpdateRate
-		i.Errors = 0 // reset in case there was an erro
+		i.Errors = 0                                                      // reset in case there was an erro
 
 		// update the DB
 		err = main_index.Update(bson.M{"uid": uid}, &i)
@@ -225,8 +225,6 @@ func LogSearchString(s string) {
 	}
 
 }
-
-
 
 /*
 func latestUpdatedPodcasts(limit int, page int) (*PodcastCollection, error) {

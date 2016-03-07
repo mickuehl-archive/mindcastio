@@ -5,18 +5,23 @@ import (
 	"github.com/mindcastio/mindcastio/backend/util"
 )
 
-const (
-	MIN_RESULTS int = 15
-)
+type ResultSorter []*Result
 
-func Search(q string) *SearchResult {
+func (r ResultSorter) Len() int           { return len(r) }
+func (r ResultSorter) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
+func (r ResultSorter) Less(i, j int) bool { return r[i].Score > r[j].Score }
+
+func Search(q string, page int, size int) *SearchResult {
+	var result []*Result
+	var ll int
+
 	uuid, _ := util.UUID()
 
 	// log the search string first
 	backend.LogSearchString(q)
 
-	result1, _ := searchElastic(q)
-	if len(result1.Results) < MIN_RESULTS {
+	result1, _ := searchElastic(q, page, size)
+	if result1.Count < size {
 		// search externally
 		result2, _ := searchITunes(q)
 
@@ -29,21 +34,26 @@ func Search(q string) *SearchResult {
 
 		// combine both results
 		if len(result1.Results) > 0 {
-			result := make([]*Result, len(result1.Results) + len(result2))
+			result = make([]*Result, len(result1.Results)+len(result2))
 			for i := range result1.Results {
 				result[i] = result1.Results[i]
 			}
 			l := len(result1.Results)
 			for i := range result2 {
-				result[i + l] = result2[i]
+				result[i+l] = result2[i]
 			}
-
-			return &SearchResult{uuid, result1.Count + len(result2), q, result}
+			ll = len(result)
 		} else {
-			return &SearchResult{uuid, len(result2), q, result2}
+			result = result2
+			ll = len(result2)
 		}
 	} else {
-		return &SearchResult{uuid, result1.Count, q, result1.Results}
+		result = result1.Results
+		ll = result1.Count
 	}
+
+	// sort the results first
+
+	return &SearchResult{uuid, ll, q, result}
 
 }

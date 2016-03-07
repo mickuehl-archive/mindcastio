@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/mindcastio/go-json-rest/rest"
@@ -17,24 +18,45 @@ import (
 func endpoint(w rest.ResponseWriter, r *rest.Request) {
 	start := time.Now()
 
+	var size int = search.PAGE_SIZE
+	var page int = 1
+
+	if len(r.URL.Query()["size"]) != 0 {
+		ss, _ := strconv.ParseInt(r.URL.Query()["size"][0], 10, 64)
+		size = (int)(ss)
+		if size < 1 {
+			size = search.PAGE_SIZE
+		}
+	}
+
+	// &page=1
+	if len(r.URL.Query()["page"]) != 0 {
+		pp, _ := strconv.ParseInt(r.URL.Query()["page"][0], 10, 64)
+		page = (int)(pp)
+		if page < 1 {
+			page = 1
+		}
+	}
+
+	// &size=25
 	if len(r.URL.Query()["q"]) == 0 {
 		backend.JsonApiErrorResponse(w, "api.search.error", "missing parameter", nil)
 		metrics.Error("api.search.error", "", nil)
 		return
 	}
 
+	// &q=Harry+Potter
 	q := r.URL.Query()["q"][0]
-	query := util.NormalizeSearchString(q)
-
-	if len(query) == 0 {
+	if len(q) == 0 {
 		backend.JsonApiErrorResponse(w, "api.search.error", "missing query", nil)
 		metrics.Error("api.search.error", "", nil)
 		return
 	}
 
+	query := util.NormalizeSearchString(q)
 	logger.Log("api.search.query", query)
 
-	result := search.Search(query)
+	result := search.Search(query, page, size)
 	backend.JsonApiResponse(w, result)
 
 	// metrics
