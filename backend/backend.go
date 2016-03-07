@@ -115,7 +115,7 @@ func IndexUpdate(uid string) error {
 		return err
 	} else {
 		i.Updated = util.Timestamp()
-		i.Next = util.IncT(i.Next, i.UpdateRate+util.RandomPlusMinus(15))
+		i.Next = util.IncT(i.Next, i.UpdateRate+util.RandomPlusMinus(15)) // FIXME adjust next in case there was a downtime > i.UpdateRate
 		i.Errors = 0 // reset in case there was an erro
 
 		// update the DB
