@@ -24,7 +24,6 @@ func SchedulePodcastCrawling() {
 
 	if count > 0 {
 		for i := 0; i < count; i++ {
-			//go CrawlPodcastFeed(expired[i].Uid)
 			CrawlPodcastFeed(expired[i].Uid)
 			// FIXME use go routine or not ?
 		}
