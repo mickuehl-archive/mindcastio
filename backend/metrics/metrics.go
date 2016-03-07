@@ -30,11 +30,11 @@ func Initialize(env *environment.Environment) {
 		logger.Error("metrics.initialize.error.1", err, host)
 	} else {
 		// test the connection to be sure ...
-		err := c.Success("mindcast", "metrics.initialize", nil)
+		err := c.Success("mindcastio", "metrics.initialize", nil)
 
 		if err == nil {
 			_statsd = c
-			_statsd.Namespace = "mindcast."
+			_statsd.Namespace = "mindcastio."
 		} else {
 			_statsd = nil
 			logger.Error("metrics.initialize.error.2", err, host)

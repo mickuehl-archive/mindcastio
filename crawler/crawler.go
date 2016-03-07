@@ -85,18 +85,17 @@ func CrawlPodcastFeed(uid string) {
 		if count > 0 {
 			// update stats and metrics
 			if is_new {
-				metrics.Count("index.podcast.new", 1)
-				metrics.Count("index.episodes.new", count)
+				metrics.Count("crawler.podcast.new", 1)
+				metrics.Count("crawler.episodes.new", count)
 			} else {
 				// new episodes added -> update the podcast.published timestamp
 				podcastUpdateTimestamp(podcast)
-
-				metrics.Count("index.episodes.update", count)
+				metrics.Count("crawler.episodes.update", count)
 			}
 		}
 
 		logger.Log("crawl_podcast_feed.done", uid, idx.Feed, strconv.FormatInt((int64)(count), 10))
-		metrics.Histogram("crawler.crawl", (float64)(util.ElapsedTimeSince(start_1)))
+		metrics.Histogram("crawler.podcast_feed.duration", (float64)(util.ElapsedTimeSince(start_1)))
 	}
 }
 

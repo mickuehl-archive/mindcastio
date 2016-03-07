@@ -51,16 +51,16 @@ func main() {
 	}()
 
 	// start the REST api
-	logger.Log("mindcast.search.startup")
-	metrics.Success("mindcast", "search.startup", nil)
+	logger.Log("api.startup")
+	metrics.Success("mindcastio", "api.startup", nil)
 
 	http.ListenAndServe(env.ListenPort(), api.MakeHandler())
 
 }
 
 func shutdown() {
-	logger.Log("mindcast.search.shutdown")
-	metrics.Success("mindcast", "search.shutdown", nil)
+	logger.Log("api.shutdown")
+	metrics.Success("mindcastio", "api.shutdown", nil)
 
 	// shutdown of services
 	datastore.Shutdown()

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/mindcastio/mindcastio/search"
-	
+
 	"github.com/mindcastio/mindcastio/backend"
 	"github.com/mindcastio/mindcastio/backend/datastore"
 	"github.com/mindcastio/mindcastio/backend/environment"
@@ -38,8 +38,8 @@ func main() {
 	}()
 
 	// start the scheduler
-	logger.Log("mindcast.indexer.startup")
-	metrics.Success("mindcast", "indexer.startup", nil)
+	logger.Log("indexer.startup")
+	metrics.Success("mindcastio", "indexer.startup", nil)
 
 	for {
 		<-background_channel
@@ -49,8 +49,8 @@ func main() {
 }
 
 func shutdown() {
-	logger.Log("mindcast.indexer.shutdown")
-	metrics.Success("mindcast", "indexer.shutdown", nil)
+	logger.Log("indexer.shutdown")
+	metrics.Success("mindcastio", "indexer.shutdown", nil)
 
 	datastore.Shutdown()
 	metrics.Shutdown()

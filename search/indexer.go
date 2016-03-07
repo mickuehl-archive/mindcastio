@@ -4,7 +4,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 	"strconv"
 	"strings"
-
+	"time"
+	
 	"github.com/mindcastio/mindcastio/backend"
 	"github.com/mindcastio/mindcastio/backend/datastore"
 	"github.com/mindcastio/mindcastio/backend/environment"
@@ -29,6 +30,7 @@ type (
 
 func SchedulePodcastIndexing() {
 
+	start := time.Now()
 	logger.Log("schedule_podcast_indexing")
 
 	// search for podcasts that are candidates for indexing
@@ -61,14 +63,16 @@ func SchedulePodcastIndexing() {
 				// abort or disable at some point?
 			}
 		}
-		metrics.Count("search.podcasts.new", count)
+		metrics.Count("indexer.podcasts.new", count)
 	}
 
 	logger.Log("schedule_podcast_indexing.done")
+	metrics.Histogram("indexer.schedule_podcast_indexing.duration", (float64)(util.ElapsedTimeSince(start)))
 }
 
 func ScheduleEpisodeIndexing() {
 
+	start := time.Now()
 	logger.Log("schedule_episode_indexing")
 
 	// search for podcasts that are candidates for indexing
@@ -101,10 +105,11 @@ func ScheduleEpisodeIndexing() {
 				// abort or disable at some point?
 			}
 		}
-		metrics.Count("search.episodes.new", count)
+		metrics.Count("indexer.episodes.new", count)
 	}
 
 	logger.Log("schedule_episode_indexing.done")
+	metrics.Histogram("indexer.schedule_episode_indexing.duration", (float64)(util.ElapsedTimeSince(start)))
 }
 
 func podcastAddToSearchIndex(podcast *backend.PodcastMetadata) error {

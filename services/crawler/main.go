@@ -37,8 +37,8 @@ func main() {
 	}()
 
 	// start the scheduler
-	logger.Log("mindcast.crawler.startup")
-	metrics.Success("mindcast", "crawler.startup", nil)
+	logger.Log("crawler.startup")
+	metrics.Success("mindcastio", "crawler.startup", nil)
 
 	for {
 		<-background_channel
@@ -47,8 +47,8 @@ func main() {
 }
 
 func shutdown() {
-	logger.Log("mindcast.crawler.shutdown")
-	metrics.Success("mindcast", "crawler.shutdown", nil)
+	logger.Log("crawler.shutdown")
+	metrics.Success("mindcastio", "crawler.shutdown", nil)
 
 	datastore.Shutdown()
 	metrics.Shutdown()
