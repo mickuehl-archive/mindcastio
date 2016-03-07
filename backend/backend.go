@@ -203,11 +203,6 @@ func LogSearchString(s string) {
 	search_keywords := ds.Collection(datastore.KEYWORDS_COL)
 
 	tt := strings.Split(s, "+")
-	//if len(tt) == 0 {
-	//	tt := make([]string, 1)
-	//	tt[0] = s
-	//}
-
 	for i := range tt {
 		t := SearchKeyword{}
 		search_keywords.Find(bson.M{"word": tt[i]}).One(&t)
