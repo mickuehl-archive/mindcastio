@@ -37,32 +37,17 @@ func createIndex() {
 		logger.Error("backend.datastore.create_index", err, "")
 	}
 	// podcast_metadata.published
-	err = podcast_metadata.EnsureIndex(mgo.Index{Key: []string{"published"}, Unique: false, DropDups: true, Background: true, Sparse: true})
+	err = podcast_metadata.EnsureIndex(mgo.Index{Key: []string{"published"}, Unique: false, DropDups: false, Background: true, Sparse: true})
 	if err != nil {
 		logger.Error("backend.datastore.create_index", err, "")
 	}
 	// podcast_metadata.created
-	err = podcast_metadata.EnsureIndex(mgo.Index{Key: []string{"created"}, Unique: false, DropDups: true, Background: true, Sparse: true})
+	err = podcast_metadata.EnsureIndex(mgo.Index{Key: []string{"created"}, Unique: false, DropDups: false, Background: true, Sparse: true})
 	if err != nil {
 		logger.Error("backend.datastore.create_index", err, "")
 	}
-	// podcast_metadata.score1
-	err = podcast_metadata.EnsureIndex(mgo.Index{Key: []string{"score1"}, Unique: false, DropDups: true, Background: true, Sparse: true})
-	if err != nil {
-		logger.Error("backend.datastore.create_index", err, "")
-	}
-	// podcast_metadata.score2
-	err = podcast_metadata.EnsureIndex(mgo.Index{Key: []string{"score2"}, Unique: false, DropDups: true, Background: true, Sparse: true})
-	if err != nil {
-		logger.Error("backend.datastore.create_index", err, "")
-	}
-	// podcast_metadata.score3
-	err = podcast_metadata.EnsureIndex(mgo.Index{Key: []string{"score3"}, Unique: false, DropDups: true, Background: true, Sparse: true})
-	if err != nil {
-		logger.Error("backend.datastore.create_index", err, "")
-	}
-	// podcast_metadata.index_version
-	err = podcast_metadata.EnsureIndex(mgo.Index{Key: []string{"version"}, Unique: false, DropDups: true, Background: true, Sparse: true})
+	// podcast_metadata.version
+	err = podcast_metadata.EnsureIndex(mgo.Index{Key: []string{"version"}, Unique: false, DropDups: false, Background: true, Sparse: true})
 	if err != nil {
 		logger.Error("backend.datastore.create_index", err, "")
 	}
@@ -75,17 +60,34 @@ func createIndex() {
 		logger.Error("backend.datastore.create_index", err, "")
 	}
 	// episodes_metadata.published
-	err = episodes_metadata.EnsureIndex(mgo.Index{Key: []string{"published"}, Unique: false, DropDups: true, Background: true, Sparse: true})
+	err = episodes_metadata.EnsureIndex(mgo.Index{Key: []string{"published"}, Unique: false, DropDups: false, Background: true, Sparse: true})
 	if err != nil {
 		logger.Error("backend.datastore.create_index", err, "")
 	}
 	// episodes_metadata.puid
-	err = episodes_metadata.EnsureIndex(mgo.Index{Key: []string{"puid"}, Unique: false, DropDups: true, Background: true, Sparse: true})
+	err = episodes_metadata.EnsureIndex(mgo.Index{Key: []string{"puid"}, Unique: false, DropDups: false, Background: true, Sparse: true})
 	if err != nil {
 		logger.Error("backend.datastore.create_index", err, "")
 	}
-	// episodes_metadata.index_version
-	err = episodes_metadata.EnsureIndex(mgo.Index{Key: []string{"version"}, Unique: false, DropDups: true, Background: true, Sparse: true})
+	// episodes_metadata.version
+	err = episodes_metadata.EnsureIndex(mgo.Index{Key: []string{"version"}, Unique: false, DropDups: false, Background: true, Sparse: true})
+	if err != nil {
+		logger.Error("backend.datastore.create_index", err, "")
+	}
+
+	// search term metadata
+	search_term := ds.Collection(SEARCH_TERM_COM)
+	err = search_term.EnsureIndex(mgo.Index{Key: []string{"created"}, Unique: false, DropDups: false, Background: true, Sparse: true})
+	if err != nil {
+		logger.Error("backend.datastore.create_index", err, "")
+	}
+	// keyword metadata
+	search_keywords := ds.Collection(KEYWORDS_COL)
+	err = search_keywords.EnsureIndex(mgo.Index{Key: []string{"word"}, Unique: true, DropDups: true, Background: true, Sparse: true})
+	if err != nil {
+		logger.Error("backend.datastore.create_index", err, "")
+	}
+	err = search_keywords.EnsureIndex(mgo.Index{Key: []string{"frequency"}, Unique: false, DropDups: false, Background: true, Sparse: true})
 	if err != nil {
 		logger.Error("backend.datastore.create_index", err, "")
 	}

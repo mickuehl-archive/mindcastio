@@ -11,9 +11,11 @@ const (
 	DATABASE string = "mindcast"
 
 	// backend store constants
-	META_COL     string = "meta"
-	PODCASTS_COL string = "podcasts"
-	EPISODES_COL string = "episodes"
+	META_COL        string = "meta"
+	PODCASTS_COL    string = "podcasts"
+	EPISODES_COL    string = "episodes"
+	SEARCH_TERM_COM string = "search_term"
+	KEYWORDS_COL    string = "keywords"
 )
 
 var _session *mgo.Session

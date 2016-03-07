@@ -1,7 +1,6 @@
 package main
 
 import (
-	"strings"
 	"time"
 
 	"github.com/mindcastio/go-json-rest/rest"
@@ -25,7 +24,7 @@ func endpoint(w rest.ResponseWriter, r *rest.Request) {
 	}
 
 	q := r.URL.Query()["q"][0]
-	query := strings.Replace(q, " ", "+", -1)
+	query := util.NormalizeSearchString(q)
 
 	if len(query) == 0 {
 		backend.JsonApiErrorResponse(w, "api.search.error", "missing query", nil)

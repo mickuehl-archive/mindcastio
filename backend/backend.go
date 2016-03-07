@@ -3,6 +3,7 @@ package backend
 import (
 	"math"
 	"strconv"
+	"strings"
 
 	"gopkg.in/mgo.v2/bson"
 
@@ -190,6 +191,47 @@ func EpisodeLookup(uid string) *EpisodeMetadata {
 		return &e
 	}
 }
+
+func LogSearchString(s string) {
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	search_term := ds.Collection(datastore.SEARCH_TERM_COM)
+	search_term.Insert(&SearchTerm{strings.Replace(s, "+", " ", -1), util.Timestamp()})
+
+	// split into keywords and update the dictionary
+	search_keywords := ds.Collection(datastore.KEYWORDS_COL)
+
+	tt := strings.Split(s, "+")
+	//if len(tt) == 0 {
+	//	tt := make([]string, 1)
+	//	tt[0] = s
+	//}
+
+	for i := range tt {
+		t := SearchKeyword{}
+		search_keywords.Find(bson.M{"word": tt[i]}).One(&t)
+		if t.Word == "" {
+			t.Word = tt[i]
+			t.Frequency = 1
+			err := search_keywords.Insert(&t)
+			if err != nil {
+				logger.Error("log_search_string.error", err, s)
+			}
+
+		} else {
+			t.Frequency = t.Frequency + 1
+			err := search_keywords.Update(bson.M{"word": tt[i]}, &t)
+			if err != nil {
+				logger.Error("log_search_string.error", err, s)
+			}
+		}
+
+	}
+
+}
+
+
 
 /*
 func latestUpdatedPodcasts(limit int, page int) (*PodcastCollection, error) {

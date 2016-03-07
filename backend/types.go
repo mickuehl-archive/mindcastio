@@ -60,9 +60,9 @@ type (
 
 		// internal admin stuff
 
-		Score1       int64 `json:"score1"` // scores, not defined yet
-		Score2       int64 `json:"score2"`
-		Score3       int64 `json:"score3"`
+		Score1  int64 `json:"score1"` // scores, not defined yet
+		Score2  int64 `json:"score2"`
+		Score3  int64 `json:"score3"`
 		Version int   `json:"version"`
 
 		Created int64 `json:"created"`
@@ -83,10 +83,20 @@ type (
 
 		// internal admin stuff
 
-		PodcastUid   string `json:"puid"`
-		Version int    `json:"version"`
+		PodcastUid string `json:"puid"`
+		Version    int    `json:"version"`
 
 		Created int64 `json:"created"`
 		Updated int64 `json:"updated"`
+	}
+
+	SearchTerm struct {
+		Term    string `json:"term"`
+		Created int64  `json:"created"`
+	}
+
+	SearchKeyword struct {
+		Word      string `json:"word"`
+		Frequency int64  `json:"frequency"`
 	}
 )

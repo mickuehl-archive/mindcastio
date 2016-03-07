@@ -12,6 +12,9 @@ const (
 func Search(q string) *SearchResult {
 	uuid, _ := util.UUID()
 
+	// log the search string first
+	backend.LogSearchString(q)
+
 	result1, _ := searchElastic(q)
 	if len(result1.Results) < MIN_RESULTS {
 		// search externally
