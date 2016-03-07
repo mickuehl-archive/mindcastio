@@ -82,7 +82,7 @@ func iTunesToResult(item *iTunesItem) *Result {
 		"",
 		item.FeedUrl,
 		item.ArtworkUrl100,
-		100,
+		0,
 		0,
 	}
 	return &result

@@ -61,7 +61,7 @@ func SchedulePodcastIndexing() {
 				// abort or disable at some point?
 			}
 		}
-		metrics.Count("indexer.podcasts.scheduled", count)
+		metrics.Count("search.podcasts.new", count)
 	}
 
 	logger.Log("schedule_podcast_indexing.done")
@@ -101,7 +101,7 @@ func ScheduleEpisodeIndexing() {
 				// abort or disable at some point?
 			}
 		}
-		metrics.Count("indexer.episodes.scheduled", count)
+		metrics.Count("search.episodes.new", count)
 	}
 
 	logger.Log("schedule_episode_indexing.done")
@@ -144,7 +144,7 @@ func episodeAddToSearchIndex(episode *backend.EpisodeMetadata) error {
 	}
 
 	return util.PutJson(uri, payload)
-	
+
 }
 
 func podcastSearchNotIndexed(limit int, version int) []backend.PodcastMetadata {
