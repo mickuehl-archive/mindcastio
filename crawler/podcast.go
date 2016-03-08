@@ -3,7 +3,7 @@ package crawler
 import (
 	"strconv"
 	"strings"
-
+//"fmt"
 	"github.com/kennygrant/sanitize"
 
 	"github.com/mindcastio/mindcastio/backend/feed"

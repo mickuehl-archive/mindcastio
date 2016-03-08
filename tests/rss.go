@@ -8,7 +8,7 @@ import (
 
 func main() {
 
-	url := "http://climate.wordpress.com/feed/"
+	url := "http://jerrywho.podOmatic.com/rss2.xml"
 
 	channel, _ := feed.RSS(url)
 	fmt.Println(channel)

@@ -117,6 +117,9 @@ func ReadWithClient(url string, client Fetcher) (*Channel, error) {
 	}
 	defer response.Body.Close()
 
+	// FIXME write own decoder to fix all these totally broken rss feeds out there !
+	// http://stackoverflow.com/questions/27160204/encoding-decoding-xml-root-token-with-xmlns-declaration-in-golang
+	
 	xmlDecoder := xml.NewDecoder(response.Body)
 	xmlDecoder.CharsetReader = charset.NewReader
 
