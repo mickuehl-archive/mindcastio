@@ -11,7 +11,7 @@ func (r ResultSorter) Len() int           { return len(r) }
 func (r ResultSorter) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
 func (r ResultSorter) Less(i, j int) bool { return r[i].Score > r[j].Score }
 
-func Search(q string, page int, size int) *SearchResult {
+func Search(q string, page int, limit int) *SearchResult {
 	var result []*Result
 	var ll int
 
@@ -20,8 +20,8 @@ func Search(q string, page int, size int) *SearchResult {
 	// log the search string first
 	backend.LogSearchString(q)
 
-	result1, _ := searchElastic(q, page, size)
-	if result1.Count < size {
+	result1, _ := searchElastic(q, page, limit)
+	if result1.Count < limit {
 		// search externally
 		result2, _ := searchITunes(q)
 
@@ -32,27 +32,28 @@ func Search(q string, page int, size int) *SearchResult {
 		}
 		backend.BulkSubmitPodcastFeed(feeds)
 
-		// combine both results
+		// return either internal result or a subset from the external search
 		if len(result1.Results) > 0 {
-			result = make([]*Result, len(result1.Results)+len(result2))
-			for i := range result1.Results {
-				result[i] = result1.Results[i]
-			}
-			l := len(result1.Results)
-			for i := range result2 {
-				result[i+l] = result2[i]
-			}
-			ll = len(result)
+			// just return what we alreday got ...
+			result = result1.Results
+			ll = result1.Count
 		} else {
-			result = result2
-			ll = len(result2)
+			// limit the result set ...
+			if len(result2) > limit {
+				result = make([]*Result, limit)
+				for i := 0; i < limit; i++ {
+						result[i] = result2[i]
+				}
+				ll = len(result)
+			} else {
+				result = result2
+				ll = len(result2)
+			}
 		}
 	} else {
 		result = result1.Results
 		ll = result1.Count
 	}
-
-	// sort the results first
 
 	return &SearchResult{uuid, ll, q, result}
 

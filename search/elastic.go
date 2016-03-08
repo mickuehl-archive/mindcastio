@@ -37,11 +37,11 @@ type (
 	}
 )
 
-func searchElastic(q string, page int, size int) (*SearchResult, error) {
+func searchElastic(q string, page int, limit int) (*SearchResult, error) {
 
-	from := size * (page - 1)
+	from := limit * (page - 1)
 	query1 := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "podcasts/podcast/_search?q=", q}, "")
-	query := strings.Join([]string{query1, "&size=", strconv.FormatInt((int64)(size), 10), "&from=", strconv.FormatInt((int64)(from), 10)}, "")
+	query := strings.Join([]string{query1, "&size=", strconv.FormatInt((int64)(limit), 10), "&from=", strconv.FormatInt((int64)(from), 10)}, "")
 
 	// FIXME we currently only search the podcast index, episodes are ignored !
 
