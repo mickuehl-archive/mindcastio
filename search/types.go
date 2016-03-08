@@ -1,7 +1,8 @@
 package search
 
 const (
-	PAGE_SIZE int = 25
+	PAGE_SIZE   int = 20
+	MIN_RESULTS int = 20
 )
 
 type (

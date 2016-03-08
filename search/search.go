@@ -21,7 +21,7 @@ func Search(q string, page int, limit int) *SearchResult {
 	backend.LogSearchString(q)
 
 	result1, _ := searchElastic(q, page, limit)
-	if result1.Count < limit {
+	if result1.Count < MIN_RESULTS {
 		// search externally
 		result2, _ := searchITunes(q)
 
@@ -42,7 +42,7 @@ func Search(q string, page int, limit int) *SearchResult {
 			if len(result2) > limit {
 				result = make([]*Result, limit)
 				for i := 0; i < limit; i++ {
-						result[i] = result2[i]
+					result[i] = result2[i]
 				}
 				ll = len(result)
 			} else {
