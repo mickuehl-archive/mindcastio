@@ -226,6 +226,27 @@ func LogSearchString(s string) {
 
 }
 
+func SimpleApiStats() (*ApiStats, error) {
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	podcast_metadata := ds.Collection(datastore.PODCASTS_COL)
+	podcasts, _ := podcast_metadata.Count()
+
+	episodes_metadata := ds.Collection(datastore.EPISODES_COL)
+	episodes, _ := episodes_metadata.Count()
+
+	info := ApiStats{
+		BACKEND_VERSION,
+		podcasts,
+		episodes,
+	}
+
+	return &info, nil
+}
+
+
 /*
 func latestUpdatedPodcasts(limit int, page int) (*PodcastCollection, error) {
 
@@ -251,26 +272,6 @@ func latestUpdatedPodcasts(limit int, page int) (*PodcastCollection, error) {
 	}
 
 	return &podcastCollection, nil
-}
-
-func simpleStats() (*ApiInfo, error) {
-
-	ds := GetDataStore()
-	defer ds.Close()
-
-	podcast_metadata := ds.Collection(PODCASTS_COL)
-	podcasts, _ := podcast_metadata.Count()
-
-	episodes_metadata := ds.Collection(EPISODES_COL)
-	episodes, _ := episodes_metadata.Count()
-
-	info := ApiInfo{
-		BACKEND_VERSION,
-		podcasts,
-		episodes,
-	}
-
-	return &info, nil
 }
 
 */

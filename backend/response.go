@@ -30,6 +30,13 @@ type (
 	}
 )
 
+func Response(w rest.ResponseWriter, model interface{}) error {
+	w.WriteHeader(http.StatusOK)
+	err := w.WriteJson(model)
+
+	return err
+}
+
 func JsonApiResponse(w rest.ResponseWriter, model interface{}) error {
 	payload, err := jsonapi.MarshalOne(model)
 	if err != nil {

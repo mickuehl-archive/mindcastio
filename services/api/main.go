@@ -17,6 +17,7 @@ import (
 
 const (
 	SEARCH_ENDPOINT string = "/api/1/search"
+	SIMPLE_STATS_ENDPOINT string = "/api/1/stats"
 )
 
 func main() {
@@ -33,7 +34,8 @@ func main() {
 	api.Use(rest.DefaultDevStack...)
 
 	router, err := rest.MakeRouter(
-		rest.Get(SEARCH_ENDPOINT, endpoint),
+		rest.Get(SEARCH_ENDPOINT, search_endpoint),
+		rest.Get(SIMPLE_STATS_ENDPOINT, stats_endpoint),
 	)
 
 	if err != nil {

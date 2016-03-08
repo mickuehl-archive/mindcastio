@@ -15,7 +15,7 @@ import (
 	"github.com/mindcastio/mindcastio/backend/util"
 )
 
-func endpoint(w rest.ResponseWriter, r *rest.Request) {
+func search_endpoint(w rest.ResponseWriter, r *rest.Request) {
 	start := time.Now()
 
 	var size int = search.PAGE_SIZE

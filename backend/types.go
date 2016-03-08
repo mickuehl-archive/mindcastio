@@ -99,4 +99,10 @@ type (
 		Word      string `json:"word"`
 		Frequency int64  `json:"frequency"`
 	}
+
+	ApiStats struct {
+		Version string `json:"version"`
+		Podcasts int `json:"podcasts"`
+		Episodes int `json:"episodes"`
+	}
 )
