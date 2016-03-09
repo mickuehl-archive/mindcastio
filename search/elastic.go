@@ -53,7 +53,7 @@ func searchElastic(q string, page int, limit int) (*SearchResult, error) {
 		podcasts[i] = elasticToResult(&result.Hits.Hits[i])
 	}
 
-	return &SearchResult{"", result.Hits.Total, q, podcasts}, err
+	return &SearchResult{"", result.Hits.Total, q, 0, podcasts}, err
 }
 
 func elasticToResult(item *HitDetail) *Result {

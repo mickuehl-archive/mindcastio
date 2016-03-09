@@ -10,6 +10,7 @@ type (
 		Uid        string    `jsonapi:"primary,search"`
 		Count      int       `jsonapi:"attr,count"`
 		SearchTerm string    `jsonapi:"attr,search_term"`
+		Duration   int64     `jsonapi:"attr,duration"`
 		Results    []*Result `jsonapi:"relation,results"`
 	}
 

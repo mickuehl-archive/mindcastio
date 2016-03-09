@@ -1,6 +1,8 @@
 package search
 
 import (
+	"time"
+	
 	"github.com/mindcastio/mindcastio/backend"
 	"github.com/mindcastio/mindcastio/backend/util"
 )
@@ -15,6 +17,7 @@ func Search(q string, page int, limit int) *SearchResult {
 	var result []*Result
 	var ll int
 
+	start := time.Now()
 	uuid, _ := util.UUID()
 
 	// log the search string first
@@ -55,6 +58,6 @@ func Search(q string, page int, limit int) *SearchResult {
 		ll = result1.Count
 	}
 
-	return &SearchResult{uuid, ll, q, result}
+	return &SearchResult{uuid, ll, q, util.ElapsedTimeSince(start), result}
 
 }
