@@ -37,6 +37,10 @@ func Response(w rest.ResponseWriter, model interface{}) error {
 	return err
 }
 
+func StatusResponse(w rest.ResponseWriter, status int) {
+	w.WriteHeader(status)
+}
+
 func JsonApiResponse(w rest.ResponseWriter, model interface{}) error {
 	payload, err := jsonapi.MarshalOne(model)
 	if err != nil {

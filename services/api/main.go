@@ -16,7 +16,8 @@ import (
 )
 
 const (
-	SEARCH_ENDPOINT string = "/api/1/search"
+	SEARCH_ENDPOINT       string = "/api/1/search"
+	SUBMIT_ENDPOINT       string = "/api/1/submit"
 	SIMPLE_STATS_ENDPOINT string = "/api/1/stats"
 )
 
@@ -35,6 +36,7 @@ func main() {
 
 	router, err := rest.MakeRouter(
 		rest.Get(SEARCH_ENDPOINT, search_endpoint),
+		rest.Post(SUBMIT_ENDPOINT, submit_endpoint),
 		rest.Get(SIMPLE_STATS_ENDPOINT, stats_endpoint),
 	)
 

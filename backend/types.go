@@ -1,7 +1,7 @@
 package backend
 
 const (
-	FIRST_UPDATE_RATE          int   = 30   // min.
+	FIRST_UPDATE_RATE          int   = 180  // min.
 	DEFAULT_UPDATE_RATE        int   = 720  // min.
 	DEFAULT_CRAWLER_SCHEDULE   int64 = 60   // sec
 	DEFAULT_INDEXER_SCHEDULE   int64 = 60   // sec
@@ -101,8 +101,8 @@ type (
 	}
 
 	ApiStats struct {
-		Version string `json:"version"`
-		Podcasts int `json:"podcasts"`
-		Episodes int `json:"episodes"`
+		Version  string `json:"version"`
+		Podcasts int    `json:"podcasts"`
+		Episodes int    `json:"episodes"`
 	}
 )

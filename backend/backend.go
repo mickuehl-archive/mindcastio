@@ -246,7 +246,6 @@ func SimpleApiStats() (*ApiStats, error) {
 	return &info, nil
 }
 
-
 /*
 func latestUpdatedPodcasts(limit int, page int) (*PodcastCollection, error) {
 
