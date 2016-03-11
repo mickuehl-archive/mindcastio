@@ -1,12 +1,15 @@
 package search
 
 import (
+	"strconv"
 	"time"
-	
+
 	"github.com/mindcastio/mindcastio/backend"
+	"github.com/mindcastio/mindcastio/backend/logger"
 	"github.com/mindcastio/mindcastio/backend/util"
 )
 
+// TODO keep this for now, we may need it for sorting of results at some point
 type ResultSorter []*Result
 
 func (r ResultSorter) Len() int           { return len(r) }
@@ -14,18 +17,20 @@ func (r ResultSorter) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
 func (r ResultSorter) Less(i, j int) bool { return r[i].Score > r[j].Score }
 
 func Search(q string, page int, limit int) *SearchResult {
-	var result []*Result
-	var ll int
 
 	start := time.Now()
 	uuid, _ := util.UUID()
+	externalCount := 0
 
 	// log the search string first
 	backend.LogSearchString(q)
 
-	result1, _ := searchElastic(q, page, limit)
-	if result1.Count < MIN_RESULTS {
-		// search externally
+	// search our own index
+	result, _ := searchElastic(q, page, limit)
+
+	// trigger external search in iTunes if there is not enough in our own index ...
+	if result.Count < MIN_RESULTS {
+
 		result2, _ := searchITunes(q)
 
 		// send feeds to the crawler
@@ -34,30 +39,11 @@ func Search(q string, page int, limit int) *SearchResult {
 			feeds[i] = result2[i].Feed
 		}
 		backend.BulkSubmitPodcastFeed(feeds)
-
-		// return either internal result or a subset from the external search
-		if len(result1.Results) > 0 {
-			// just return what we alreday got ...
-			result = result1.Results
-			ll = result1.Count
-		} else {
-			// limit the result set ...
-			if len(result2) > limit {
-				result = make([]*Result, limit)
-				for i := 0; i < limit; i++ {
-					result[i] = result2[i]
-				}
-				ll = len(result)
-			} else {
-				result = result2
-				ll = len(result2)
-			}
-		}
-	} else {
-		result = result1.Results
-		ll = result1.Count
+		externalCount = len(result2)
 	}
 
-	return &SearchResult{uuid, ll, q, util.ElapsedTimeSince(start), result}
+	logger.Log("backend.search.hits", q, strconv.FormatInt((int64)(result.Count), 10), strconv.FormatInt((int64)(externalCount), 10))
+
+	return &SearchResult{uuid, result.Count, q, util.ElapsedTimeSince(start), result.Results}
 
 }
