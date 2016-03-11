@@ -6,13 +6,16 @@ function post {
 	echo ""
 }
 
-if [ -f $1 ]
+filename=$1
+endpoint=$2
+
+if [ -f $filename ]
 then
 
   while read line
   do
-	  post $line $2
+	  post $line $endpoint
 	  #sleep 1
-  done < $1
+  done < $filename
 
 fi
