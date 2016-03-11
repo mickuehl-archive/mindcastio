@@ -8,8 +8,8 @@ import (
 	"io"
 	"math/rand"
 	"net/http"
-	"time"
 	"strings"
+	"time"
 )
 
 func Timestamp() int64 {
@@ -77,5 +77,5 @@ func UUID() (string, error) {
 }
 
 func NormalizeSearchString(s string) string {
-	return strings.Replace(strings.ToLower( strings.Trim(s, " ")), " ", "+", -1)
+	return strings.Replace(strings.ToLower(strings.Trim(s, " ")), " ", "+", -1)
 }

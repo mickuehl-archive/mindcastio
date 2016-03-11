@@ -21,17 +21,31 @@ func GetJson(url string, target interface{}) error {
 }
 
 func PutJson(url string, target interface{}) error {
-	res, err := goreq.Request{
+	r, err := goreq.Request{
 		Method:      "PUT",
 		Uri:         url,
 		ContentType: "application/json",
 		Body:        target,
 	}.Do()
+	defer r.Body.Close()
 
-	if res != nil {
-		res.Body.Close()
-	}
 	return err
+}
+
+func PostJson(url string, body interface{}, response interface{}) error {
+	r, err := goreq.Request{
+		Method:      "POST",
+		Uri:         url,
+		ContentType: "application/json",
+		Body:        body,
+	}.Do()
+	defer r.Body.Close()
+
+	if err != nil {
+		return err
+	}
+
+	return json.NewDecoder(r.Body).Decode(response)
 }
 
 func PrettyPrintJson(target interface{}) {

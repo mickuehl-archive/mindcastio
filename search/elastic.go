@@ -35,18 +35,54 @@ type (
 		Id    string  `json:"_id"`
 		Score float32 `json:"_score"`
 	}
+
+	ElasticOperatorQuery struct {
+		Query MatchOperator `json:"query"`
+	}
+
+	ElasticPrecisionQuery struct {
+		Query MatchPrecision `json:"query"`
+	}
+
+	MatchOperator struct {
+		Match FieldOperator `json:"match"`
+	}
+
+	MatchPrecision struct {
+		Match FieldPrecision `json:"match"`
+	}
+
+	FieldOperator struct {
+		Field QueryOperator `json:"_all"`
+	}
+
+	FieldPrecision struct {
+		Field QueryPrecision `json:"_all"`
+	}
+
+	QueryOperator struct {
+		Q        string `json:"query"`
+		Operator string `json:"operator"`
+	}
+
+	QueryPrecision struct {
+		Q        string `json:"query"`
+		Operator string `json:"minimum_should_match"`
+	}
 )
 
 func searchElastic(q string, page int, limit int) (*SearchResult, error) {
 
+	// query url
 	from := limit * (page - 1)
-	query1 := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "podcasts/podcast/_search?q=", q}, "")
-	query := strings.Join([]string{query1, "&size=", strconv.FormatInt((int64)(limit), 10), "&from=", strconv.FormatInt((int64)(from), 10)}, "")
+	url := strings.Join([]string{environment.GetEnvironment().SearchServiceUrl(), "podcasts/podcast/_search?size=", strconv.FormatInt((int64)(limit), 10), "&from=", strconv.FormatInt((int64)(from), 10)}, "")
 
-	// FIXME we currently only search the podcast index, episodes are ignored !
+	// query payload
+	//query_body := ElasticOperatorQuery{MatchOperator{FieldOperator{QueryOperator{q, "and"}}}}
+	query_body := ElasticPrecisionQuery{MatchPrecision{FieldPrecision{QueryPrecision{q, "80%"}}}}
 
 	result := ElasticResponse{}
-	err := util.GetJson(query, &result)
+	err := util.PostJson(url, &query_body, &result)
 
 	podcasts := make([]*Result, len(result.Hits.Hits))
 	for i := range result.Hits.Hits {
