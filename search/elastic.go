@@ -79,7 +79,7 @@ func searchElastic(q string, page int, limit int) (*SearchResult, error) {
 
 	// query payload
 	//query_body := ElasticOperatorQuery{MatchOperator{FieldOperator{QueryOperator{q, "and"}}}}
-	query_body := ElasticPrecisionQuery{MatchPrecision{FieldPrecision{QueryPrecision{q, "80%"}}}}
+	query_body := ElasticPrecisionQuery{MatchPrecision{FieldPrecision{QueryPrecision{q, "2<75%"}}}}
 
 	result := ElasticResponse{}
 	err := util.PostJson(url, &query_body, &result)
