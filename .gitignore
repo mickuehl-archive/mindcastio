@@ -2,6 +2,7 @@
 services/crawler/crawler
 services/indexer/indexer
 services/api/api
+tools/export_index/export_index
 
 .vagrant/
 TODO.md
@@ -31,3 +32,4 @@ _testmain.go
 *.test
 *.prof
 *.csv
+*.txt

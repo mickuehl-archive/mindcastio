@@ -21,6 +21,11 @@ cd $MINDCAST_SRC/services/api
 echo "Building the api service ..."
 go get && go build
 
+echo "Building tools"
+
+cd $MINDCAST_SRC/tools/export_index
+go get && go build
+
 echo "Addding symbolic links"
 
 if [ ! -L "/usr/local/bin/mindcast-crawler" ]; then
