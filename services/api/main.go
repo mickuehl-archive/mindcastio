@@ -16,9 +16,11 @@ import (
 )
 
 const (
-	SEARCH_ENDPOINT       string = "/api/1/search"
-	SUBMIT_ENDPOINT       string = "/api/1/submit"
-	SIMPLE_STATS_ENDPOINT string = "/api/1/stats"
+	SEARCH_ENDPOINT  string = "/api/1/search"
+	SUBMIT_ENDPOINT  string = "/api/1/submit"
+	STATS_ENDPOINT   string = "/api/1/stats"
+	PODCAST_ENDPOINT string = "/api/1/p/#id"
+	EPISODE_ENDPOINT string = "/api/1/e/#id"
 )
 
 func main() {
@@ -37,7 +39,9 @@ func main() {
 	router, err := rest.MakeRouter(
 		rest.Get(SEARCH_ENDPOINT, search_endpoint),
 		rest.Post(SUBMIT_ENDPOINT, submit_endpoint),
-		rest.Get(SIMPLE_STATS_ENDPOINT, stats_endpoint),
+		rest.Get(STATS_ENDPOINT, stats_endpoint),
+		rest.Get(PODCAST_ENDPOINT, podcast_endpoint),
+		rest.Get(EPISODE_ENDPOINT, episode_endpoint),
 	)
 
 	if err != nil {

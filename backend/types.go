@@ -25,29 +25,10 @@ type (
 
 	/*
 		PodcastCollection struct {
-			Count    int              `json:"count"`
-			Podcasts []PodcastSummary `json:"podcasts"`
-		}
-
-		PodcastSummary struct {
-			Uid         string `json:"uid"`
-			Title       string `json:"title"`
-			Author      string `json:"author"`
-			Description string `json:"description"`
-			Url         string `json:"url"`
-			Feed        string `json:"feed"`
-			ImageUrl    string `json:"image_url"`
-
-			// internal admin stuff
-
-			Published int64 `json:"published"`
+			Count    int               `json:"count"`
+			Podcasts []PodcastMetadata `json:"podcasts"`
 		}
 	*/
-
-	PodcastCollection struct {
-		Count    int              `json:"count"`
-		Podcasts []PodcastMetadata `json:"podcasts"`
-	}
 
 	PodcastMetadata struct {
 		Uid         string `json:"uid"`
@@ -74,6 +55,20 @@ type (
 		Updated int64 `json:"updated"`
 	}
 
+	Podcast struct {
+		Uid         string `jsonapi:"primary,podcast"`
+		Title       string `jsonapi:"attr,title"`
+		Subtitle    string `jsonapi:"attr,subtitle"`
+		Url         string `jsonapi:"attr,url"`
+		Feed        string `jsonapi:"attr,feed"`
+		Description string `jsonapi:"attr,description"`
+		Published   int64  `jsonapi:"attr,published"`
+		Language    string `jsonapi:"attr,language"`
+		ImageUrl    string `jsonapi:"attr,image_url"`
+		OwnerName   string `jsonapi:"attr,owner_name"`
+		OwnerEmail  string `jsonapi:"attr,owner_email"`
+	}
+
 	EpisodeMetadata struct {
 		Uid         string `json:"uid"`
 		Title       string `json:"title"`
@@ -93,6 +88,20 @@ type (
 
 		Created int64 `json:"created"`
 		Updated int64 `json:"updated"`
+	}
+
+	Episode struct {
+		Uid         string `jsonapi:"primary,episode"`
+		PodcastUid  string `jsonapi:"attr,puid"`
+		Title       string `jsonapi:"attr,title"`
+		Url         string `jsonapi:"attr,url"`
+		Description string `jsonapi:"attr,description"`
+		Published   int64  `jsonapi:"attr,published"`
+		Duration    int64  `jsonapi:"attr,duration"`
+		Author      string `jsonapi:"attr,author"`
+		AssetUrl    string `jsonapi:"attr,asset_url"`
+		AssetType   string `jsonapi:"attr,asset_type"`
+		AssetSize   int    `jsonapi:"attr,asset_size"`
 	}
 
 	SearchTerm struct {

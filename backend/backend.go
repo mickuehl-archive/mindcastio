@@ -246,6 +246,7 @@ func SimpleApiStats() (*ApiStats, error) {
 	return &info, nil
 }
 
+/*
 func LatesedPodcasts(limit int) (*PodcastCollection, error) {
 
 	ds := datastore.GetDataStore()
@@ -287,3 +288,4 @@ func UpdatedPodcasts(limit int) (*PodcastCollection, error) {
 
 	return &podcastCollection, nil
 }
+*/
