@@ -246,8 +246,28 @@ func SimpleApiStats() (*ApiStats, error) {
 	return &info, nil
 }
 
-/*
-func latestUpdatedPodcasts(limit int, page int) (*PodcastCollection, error) {
+func LatesedPodcasts(limit int) (*PodcastCollection, error) {
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	podcast_metadata := ds.Collection(datastore.PODCASTS_COL)
+
+	results := []PodcastMetadata{}
+	err := podcast_metadata.Find(nil).Limit(limit).Sort("-created").All(&results)
+	if err != nil {
+		return nil, err
+	}
+
+	podcastCollection := PodcastCollection{
+		len(results),
+		results,
+	}
+
+	return &podcastCollection, nil
+}
+
+func UpdatedPodcasts(limit int) (*PodcastCollection, error) {
 
 	ds := datastore.GetDataStore()
 	defer ds.Close()
@@ -260,17 +280,10 @@ func latestUpdatedPodcasts(limit int, page int) (*PodcastCollection, error) {
 		return nil, err
 	}
 
-	podcasts := make([]PodcastSummary, len(results))
-	for i := 0; i < len(results); i++ {
-		podcasts[i] = podcastMetadataToSummary(&results[i])
-	}
-
 	podcastCollection := PodcastCollection{
 		len(results),
-		podcasts,
+		results,
 	}
 
 	return &podcastCollection, nil
 }
-
-*/

@@ -1,4 +1,5 @@
-# mindcastio
+# mindcast.io
+
 mindcast.io
 
 ## Links
@@ -21,3 +22,7 @@ https://www.buzzsprout.com/learn/podcast-directory -> getting listed
 ## On Elasticsearch
 
 https://www.elastic.co/guide/en/elasticsearch/guide/current/match-query.html
+
+Crawling iTunes
+https://itunes.apple.com/search?media=podcast&entity=podcast&limit=200&term=
+https://affiliate.itunes.apple.com/resources/documentation/itunes-store-web-service-search-api/
