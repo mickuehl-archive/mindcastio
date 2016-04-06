@@ -20,6 +20,9 @@ echo "Building tools"
 cd $MINDCAST_SRC/tools/export_index
 go get && go build
 
+cd $MINDCAST_SRC/tools/research
+go get && go build
+
 echo "Building the migrations"
 
 cd $MINDCAST_SRC/tools/migrations

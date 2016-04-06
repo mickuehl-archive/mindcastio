@@ -26,12 +26,12 @@ func Search(q string, page int, limit int) *SearchResult {
 	backend.LogSearchString(q)
 
 	// search our own index
-	result, _ := searchElastic(q, page, limit)
+	result, _ := SearchElastic(q, page, limit)
 
 	// trigger external search in iTunes if there is not enough in our own index ...
 	if result.Count < MIN_RESULTS {
 
-		result2, _ := searchITunes(q)
+		result2, _ := SearchITunes(q)
 
 		// send feeds to the crawler
 		feeds := make([]string, len(result2))

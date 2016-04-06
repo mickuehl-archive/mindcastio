@@ -52,7 +52,7 @@ type (
 	}
 )
 
-func searchITunes(q string) ([]*Result, error) {
+func SearchITunes(q string) ([]*Result, error) {
 
 	query := strings.Join([]string{ITUNES_SEARCH_URL, q}, "")
 

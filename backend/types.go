@@ -1,7 +1,7 @@
 package backend
 
 const (
-	FIRST_UPDATE_RATE          int   = 180  // min.
+	FIRST_UPDATE_RATE          int   = 360  // min.
 	DEFAULT_UPDATE_RATE        int   = 1440 // min.
 	DEFAULT_CRAWLER_SCHEDULE   int64 = 60   // sec
 	DEFAULT_INDEXER_SCHEDULE   int64 = 60   // sec

@@ -46,7 +46,7 @@ func BulkSubmitPodcastFeed(urls []string) error {
 	count := 0
 	feed := ""
 
-	for i := 0; i < len(urls); i++ {
+	for i := range urls {
 		feed = urls[i]
 
 		// check if the podcast is already in the index

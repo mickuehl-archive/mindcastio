@@ -71,7 +71,7 @@ type (
 	}
 )
 
-func searchElastic(q string, page int, limit int) (*SearchResult, error) {
+func SearchElastic(q string, page int, limit int) (*SearchResult, error) {
 
 	// query url
 	from := limit * (page - 1)
