@@ -15,7 +15,7 @@ import (
 /*
 	migration_01
 
-	Increase the update frequency and rebalance the update times.
+	Change the update frequency and rebalance the update schedule.
 */
 
 func main() {
