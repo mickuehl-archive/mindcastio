@@ -2,7 +2,7 @@ package backend
 
 const (
 	FIRST_UPDATE_RATE          int   = 180  // min.
-	DEFAULT_UPDATE_RATE        int   = 720  // min.
+	DEFAULT_UPDATE_RATE        int   = 1440 // min.
 	DEFAULT_CRAWLER_SCHEDULE   int64 = 60   // sec
 	DEFAULT_INDEXER_SCHEDULE   int64 = 60   // sec
 	DEFAULT_UPDATE_BATCH       int   = 50   // how many podcasts to update per crawler run
