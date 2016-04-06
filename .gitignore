@@ -3,6 +3,7 @@ services/crawler/crawler
 services/indexer/indexer
 services/api/api
 tools/export_index/export_index
+tools/migrations/migration_*
 
 .vagrant/
 TODO.md
