@@ -50,7 +50,7 @@ func CrawlPodcastFeed(uid string) {
 	// fetch the podcast feed
 	start_2 := time.Now()
 	podcast, err := ParsePodcastFeed(idx.Feed)
-	metrics.Histogram("crawler.parse_feed", (float64)(util.ElapsedTimeSince(start_2)))
+	metrics.Histogram("crawler.parse.duration", (float64)(util.ElapsedTimeSince(start_2)))
 
 	if err != nil {
 		suspended, _ := backend.IndexBackoff(uid)
@@ -86,17 +86,19 @@ func CrawlPodcastFeed(uid string) {
 		if count > 0 {
 			// update stats and metrics
 			if is_new {
-				metrics.Count("crawler.podcast.new", 1)
-				metrics.Count("crawler.episodes.new", count)
+				metrics.Count("index.podcasts", 1)
+				metrics.Count("index.episodes", count)
 			} else {
 				// new episodes added -> update the podcast.published timestamp
 				podcastUpdateTimestamp(podcast)
-				metrics.Count("crawler.episodes.update", count)
+				metrics.Count("index.episodes", count)
 			}
 		}
 
 		logger.Log("crawl_podcast_feed.done", uid, idx.Feed, strconv.FormatInt((int64)(count), 10))
-		metrics.Histogram("crawler.podcast_feed.duration", (float64)(util.ElapsedTimeSince(start_1)))
+
+		metrics.Count("crawler.count", 1)
+		metrics.Histogram("crawler.duration", (float64)(util.ElapsedTimeSince(start_1)))
 	}
 }
 

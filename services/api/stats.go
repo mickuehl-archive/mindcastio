@@ -18,7 +18,7 @@ func stats_endpoint(w rest.ResponseWriter, r *rest.Request) {
 	backend.Response(w, result)
 
 	// metrics
-	metrics.Count("api.total", 1)
-	metrics.Count("api.stats", 1)
+	metrics.Count("api.total.count", 1)
+	metrics.Count("api.stats.count", 1)
 	metrics.Histogram("api.stats.duration", (float64)(util.ElapsedTimeSince(start)))
 }

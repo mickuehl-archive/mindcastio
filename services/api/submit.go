@@ -27,8 +27,8 @@ func submit_endpoint(w rest.ResponseWriter, r *rest.Request) {
 		backend.JsonApiErrorResponse(w, "api.submit.error", "missing parameter", err)
 
 		metrics.Error("api.submit.error", err.Error(), nil)
-		metrics.Count("api.total", 1)
-		metrics.Count("api.submit", 1)
+		metrics.Count("api.total.count", 1)
+		metrics.Count("api.submit.count", 1)
 
 		return
 	}
@@ -48,7 +48,7 @@ func submit_endpoint(w rest.ResponseWriter, r *rest.Request) {
 	}
 
 	// metrics
-	metrics.Count("api.total", 1)
-	metrics.Count("api.submit", 1)
+	metrics.Count("api.total.count", 1)
+	metrics.Count("api.submit.count", 1)
 	metrics.Histogram("api.submit.duration", (float64)(util.ElapsedTimeSince(start)))
 }

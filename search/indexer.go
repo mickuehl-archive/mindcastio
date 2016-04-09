@@ -61,11 +61,11 @@ func SchedulePodcastIndexing() {
 				// abort or disable at some point?
 			}
 		}
-		metrics.Count("indexer.podcasts.new", count)
+		metrics.Count("indexer.podcasts.count", count)
 	}
 
 	logger.Log("schedule_podcast_indexing.done")
-	metrics.Histogram("indexer.schedule_podcast_indexing.duration", (float64)(util.ElapsedTimeSince(start)))
+	metrics.Histogram("indexer.podcasts.duration", (float64)(util.ElapsedTimeSince(start)))
 }
 
 func ScheduleEpisodeIndexing() {
@@ -103,11 +103,11 @@ func ScheduleEpisodeIndexing() {
 				// abort or disable at some point?
 			}
 		}
-		metrics.Count("indexer.episodes.new", count)
+		metrics.Count("indexer.episodes.count", count)
 	}
 
 	logger.Log("schedule_episode_indexing.done")
-	metrics.Histogram("indexer.schedule_episode_indexing.duration", (float64)(util.ElapsedTimeSince(start)))
+	metrics.Histogram("indexer.episodes.duration", (float64)(util.ElapsedTimeSince(start)))
 }
 
 func podcastAddToSearchIndex(podcast *backend.PodcastMetadata) error {

@@ -33,8 +33,8 @@ func podcast_endpoint(w rest.ResponseWriter, r *rest.Request) {
 
 		metrics.Error("api.podcast.error", "podcast not found", []string{uid})
 
-		metrics.Count("api.total", 1)
-		metrics.Count("api.podcast", 1)
+		metrics.Count("api.total.count", 1)
+		metrics.Count("api.podcast.count", 1)
 
 		return
 	}
@@ -56,8 +56,8 @@ func podcast_endpoint(w rest.ResponseWriter, r *rest.Request) {
 	backend.JsonApiResponse(w, &podcast)
 
 	// metrics
-	metrics.Count("api.total", 1)
-	metrics.Count("api.podcast", 1)
+	metrics.Count("api.total.count", 1)
+	metrics.Count("api.podcast.count", 1)
 	metrics.Histogram("api.podcast.duration", (float64)(util.ElapsedTimeSince(start)))
 }
 
@@ -78,8 +78,8 @@ func episode_endpoint(w rest.ResponseWriter, r *rest.Request) {
 
 		metrics.Error("api.episode.error", "episode not found", []string{uid})
 
-		metrics.Count("api.total", 1)
-		metrics.Count("api.episode", 1)
+		metrics.Count("api.total.count", 1)
+		metrics.Count("api.episode.count", 1)
 
 		return
 	}
@@ -101,7 +101,7 @@ func episode_endpoint(w rest.ResponseWriter, r *rest.Request) {
 	backend.JsonApiResponse(w, &episode)
 
 	// metrics
-	metrics.Count("api.total", 1)
-	metrics.Count("api.episode", 1)
+	metrics.Count("api.total.count", 1)
+	metrics.Count("api.episode.count", 1)
 	metrics.Histogram("api.episode.duration", (float64)(util.ElapsedTimeSince(start)))
 }

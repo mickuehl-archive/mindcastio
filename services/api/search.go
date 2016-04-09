@@ -60,7 +60,7 @@ func search_endpoint(w rest.ResponseWriter, r *rest.Request) {
 	backend.JsonApiResponse(w, result)
 
 	// metrics
-	metrics.Count("api.total", 1)
-	metrics.Count("api.search", 1)
+	metrics.Count("api.total.count", 1)
+	metrics.Count("api.search.count", 1)
 	metrics.Histogram("api.search.duration", (float64)(util.ElapsedTimeSince(start)))
 }

@@ -1,11 +1,11 @@
 package search
 
 import (
-	"strconv"
+	//"strconv"
 	"time"
 
 	"github.com/mindcastio/mindcastio/backend"
-	"github.com/mindcastio/mindcastio/backend/logger"
+	"github.com/mindcastio/mindcastio/backend/metrics"
 	"github.com/mindcastio/mindcastio/backend/util"
 )
 
@@ -20,29 +20,36 @@ func Search(q string, page int, limit int) *SearchResult {
 
 	start := time.Now()
 	uuid, _ := util.UUID()
-	externalCount := 0
 
 	// log the search string first
 	backend.LogSearchString(q)
 
 	// search our own index
+	start_1 := time.Now()
 	result, _ := SearchElastic(q, page, limit)
+	metrics.Histogram("search.internal.duration", (float64)(util.ElapsedTimeSince(start_1)))
 
 	// trigger external search in iTunes if there is not enough in our own index ...
 	if result.Count < MIN_RESULTS {
 
-		result2, _ := SearchITunes(q)
+		go func() {
+			start_2 := time.Now()
+			result2, _ := SearchITunes(q)
+			metrics.Histogram("search.external.duration", (float64)(util.ElapsedTimeSince(start_2)))
 
-		// send feeds to the crawler
-		feeds := make([]string, len(result2))
-		for i := range result2 {
-			feeds[i] = result2[i].Feed
-		}
-		backend.BulkSubmitPodcastFeed(feeds)
-		externalCount = len(result2)
+			// send feeds to the crawler
+			feeds := make([]string, len(result2))
+			for i := range result2 {
+				feeds[i] = result2[i].Feed
+			}
+			backend.BulkSubmitPodcastFeed(feeds)
+
+			metrics.Count("search.external.count", len(result2))
+		}()
 	}
 
-	logger.Log("backend.search.hits", q, strconv.FormatInt((int64)(result.Count), 10), strconv.FormatInt((int64)(externalCount), 10))
+	metrics.Count("search.internal.count", result.Count)
+	metrics.Histogram("search.duration", (float64)(util.ElapsedTimeSince(start)))
 
 	return &SearchResult{uuid, result.Count, q, util.ElapsedTimeSince(start), result.Results}
 
