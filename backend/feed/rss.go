@@ -5,12 +5,15 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/mreiferson/go-httpclient"
 	"github.com/rogpeppe/go-charset/charset"
 	_ "github.com/rogpeppe/go-charset/data" //initialize only
 )
 
 const (
-	wordpressDateFormat = "Mon, 02 Jan 2006 15:04:05 -0700"
+	WORDPRESS_DATE_FORMAT               = "Mon, 02 Jan 2006 15:04:05 -0700"
+	DEFAULT_TIMEOUT       time.Duration = 10  // seconds
+	RESPONSE_TIMEOUT      time.Duration = 120 // seconds
 )
 
 //Fetcher interface
@@ -70,7 +73,7 @@ type ItunesOwner struct {
 
 //Parse (Date function) and returns Time, error
 func (d RSSDate) Parse() (time.Time, error) {
-	t, err := d.ParseWithFormat(wordpressDateFormat)
+	t, err := d.ParseWithFormat(WORDPRESS_DATE_FORMAT)
 	if err != nil {
 		t, err = d.ParseWithFormat(time.RFC1123) // variation of the wordpress format
 		if err != nil {
@@ -105,21 +108,22 @@ func (d RSSDate) MustFormat(format string) string {
 
 //Read a string url and returns a Channel struct, error
 func RSS(url string) (*Channel, error) {
-	return ReadWithClient(url, http.DefaultClient)
-}
+	//return ReadWithClient(url, http.DefaultClient)
+	transport := &httpclient.Transport{
+		ConnectTimeout:        DEFAULT_TIMEOUT * time.Second,
+		RequestTimeout:        RESPONSE_TIMEOUT * time.Second,
+		ResponseHeaderTimeout: DEFAULT_TIMEOUT * time.Second,
+	}
+	defer transport.Close()
 
-//ReadWithClient a string url and custom client that must match the Fetcher interface
-//returns a Channel struct, error
-func ReadWithClient(url string, client Fetcher) (*Channel, error) {
-	response, err := client.Get(url)
+	client := &http.Client{Transport: transport}
+	req, _ := http.NewRequest("GET", url, nil)
+	response, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer response.Body.Close()
 
-	// FIXME write own decoder to fix all these totally broken rss feeds out there !
-	// http://stackoverflow.com/questions/27160204/encoding-decoding-xml-root-token-with-xmlns-declaration-in-golang
-	
 	xmlDecoder := xml.NewDecoder(response.Body)
 	xmlDecoder.CharsetReader = charset.NewReader
 
@@ -130,5 +134,4 @@ func ReadWithClient(url string, client Fetcher) (*Channel, error) {
 		return nil, err
 	}
 	return &rss.Channel, nil
-
 }
