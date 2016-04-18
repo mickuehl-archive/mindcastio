@@ -117,7 +117,10 @@ func RSS(url string) (*Channel, error) {
 	defer transport.Close()
 
 	client := &http.Client{Transport: transport}
-	req, _ := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
 	response, err := client.Do(req)
 	if err != nil {
 		return nil, err
