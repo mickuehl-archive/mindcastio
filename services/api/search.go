@@ -21,6 +21,7 @@ func search_endpoint(w rest.ResponseWriter, r *rest.Request) {
 	var size int = search.PAGE_SIZE
 	var page int = 1
 
+	// &size=25
 	if len(r.URL.Query()["size"]) != 0 {
 		ss, _ := strconv.ParseInt(r.URL.Query()["size"][0], 10, 64)
 		size = (int)(ss)
@@ -38,14 +39,13 @@ func search_endpoint(w rest.ResponseWriter, r *rest.Request) {
 		}
 	}
 
-	// &size=25
+	// &q=Harry+Potter
 	if len(r.URL.Query()["q"]) == 0 {
 		backend.JsonApiErrorResponse(w, "api.search.error", "missing parameter", nil)
 		metrics.Error("api.search.error", "", nil)
 		return
 	}
 
-	// &q=Harry+Potter
 	q := r.URL.Query()["q"][0]
 	if len(q) == 0 {
 		backend.JsonApiErrorResponse(w, "api.search.error", "missing query", nil)

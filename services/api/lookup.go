@@ -39,6 +39,54 @@ func podcast_endpoint(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
+	episodes := make([]*backend.Episode, 0)
+
+	if len(r.URL.Query()["e"]) != 0 {
+		e := r.URL.Query()["e"][0]
+
+		if e == "l" { // e=l(atest)
+			
+			result := backend.PodcastLookupLatestEpisode(uid)
+			episodes = make([]*backend.Episode, 1)
+
+			episodes[0] = &backend.Episode{
+				result.Uid,
+				result.PodcastUid,
+				result.Title,
+				result.Url,
+				result.Description,
+				result.Published,
+				result.Duration,
+				result.Author,
+				result.AssetUrl,
+				result.AssetType,
+				result.AssetSize,
+			}
+
+		} else if e == "a" { // e=a(ll)
+
+			result := backend.PodcastLookupAllEpisodes(uid)
+			episodes = make([]*backend.Episode, len(result))
+
+			for i := range result {
+				episodes[i] = &backend.Episode{
+					result[i].Uid,
+					result[i].PodcastUid,
+					result[i].Title,
+					result[i].Url,
+					result[i].Description,
+					result[i].Published,
+					result[i].Duration,
+					result[i].Author,
+					result[i].AssetUrl,
+					result[i].AssetType,
+					result[i].AssetSize,
+				}
+			}
+
+		}
+	}
+
 	// create an 'outside' view
 	podcast := backend.Podcast{
 		result.Uid,
@@ -52,6 +100,7 @@ func podcast_endpoint(w rest.ResponseWriter, r *rest.Request) {
 		result.ImageUrl,
 		result.OwnerName,
 		result.OwnerEmail,
+		episodes,
 	}
 	backend.JsonApiResponse(w, &podcast)
 

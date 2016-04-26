@@ -175,6 +175,32 @@ func PodcastLookup(uid string) *PodcastMetadata {
 	}
 }
 
+func PodcastLookupLatestEpisode(uid string) *EpisodeMetadata {
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	episodes_metadata := ds.Collection(datastore.EPISODES_COL)
+
+	episode := EpisodeMetadata{}
+	episodes_metadata.Find(bson.M{"podcastuid": uid}).Sort("-published").One(&episode)
+
+	return &episode
+}
+
+func PodcastLookupAllEpisodes(uid string) []*EpisodeMetadata {
+
+	ds := datastore.GetDataStore()
+	defer ds.Close()
+
+	episodes_metadata := ds.Collection(datastore.EPISODES_COL)
+
+	episodes := []*EpisodeMetadata{}
+	episodes_metadata.Find(bson.M{"podcastuid": uid}).Sort("-published").All(&episodes)
+
+	return episodes
+}
+
 func EpisodeLookup(uid string) *EpisodeMetadata {
 
 	ds := datastore.GetDataStore()
