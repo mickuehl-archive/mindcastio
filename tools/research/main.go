@@ -1,8 +1,7 @@
 package main
 
 import (
-
-	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/mindcastio/mindcastio/search"
@@ -32,9 +31,11 @@ func main() {
 	results := []backend.SearchKeyword{}
 	search_keywords.Find(nil).Sort("-frequency").All(&results)
 
+	var total int = 0
+
 	for i := range results {
-		fmt.Println("Keyword: ", results[i].Word, results[i].Frequency)
-		time.Sleep(1000 * time.Millisecond)
+
+		time.Sleep(3000 * time.Millisecond)
 
 		// search iTunes and submit the results to the crawler
 		itunes_result, _ := search.SearchITunes(results[i].Word)
@@ -44,9 +45,14 @@ func main() {
 		for i := range itunes_result {
 			feeds[i] = itunes_result[i].Feed
 		}
-		backend.BulkSubmitPodcastFeed(feeds)
 
+		count, _ := backend.BulkSubmitPodcastFeed(feeds)
+		total = total + count
+
+		logger.Log("re_search.search", results[i].Word, strconv.FormatInt((int64)(count), 10))
 	}
+
+	logger.Log("re_search.done", strconv.FormatInt((int64)(len(results)), 10), strconv.FormatInt((int64)(total), 10))
 
 }
 

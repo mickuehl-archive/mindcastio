@@ -39,7 +39,7 @@ func SubmitPodcastFeed(feed string) error {
 	return nil
 }
 
-func BulkSubmitPodcastFeed(urls []string) error {
+func BulkSubmitPodcastFeed(urls []string) (int, error) {
 
 	logger.Log("bulk_submit_podcast_feed")
 
@@ -60,7 +60,7 @@ func BulkSubmitPodcastFeed(urls []string) error {
 				logger.Error("bulk_submit_podcast_feed.error", err, feed)
 				metrics.Error("bulk_submit_podcast_feed.error", err.Error(), []string{feed})
 
-				return err
+				return 0, err
 			} else {
 				count++
 			}
@@ -68,7 +68,7 @@ func BulkSubmitPodcastFeed(urls []string) error {
 	}
 
 	logger.Log("bulk_submit_podcast_feed.done", strconv.FormatInt((int64)(count), 10))
-	return nil
+	return count, nil
 }
 
 func IndexLookup(uid string) *PodcastIndex {
