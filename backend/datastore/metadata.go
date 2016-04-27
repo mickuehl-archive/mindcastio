@@ -65,7 +65,6 @@ func createIndex() {
 		logger.Error("backend.datastore.create_index", err, "")
 	}
 	// episodes_metadata.puid
-	//err = episodes_metadata.EnsureIndex(mgo.Index{Key: []string{"puid"}, Unique: false, DropDups: false, Background: true, Sparse: true})
 	err = episodes_metadata.EnsureIndex(mgo.Index{Key: []string{"podcastuid"}, Unique: false, DropDups: false, Background: true, Sparse: true})
 	if err != nil {
 		logger.Error("backend.datastore.create_index", err, "")
