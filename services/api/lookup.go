@@ -45,7 +45,7 @@ func podcast_endpoint(w rest.ResponseWriter, r *rest.Request) {
 		e := r.URL.Query()["e"][0]
 
 		if e == "l" { // e=l(atest)
-			
+
 			result := backend.PodcastLookupLatestEpisode(uid)
 			episodes = make([]*backend.Episode, 1)
 

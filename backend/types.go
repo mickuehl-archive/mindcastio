@@ -68,7 +68,7 @@ type (
 		OwnerName   string `jsonapi:"attr,owner_name"`
 		OwnerEmail  string `jsonapi:"attr,owner_email"`
 
-		Episodes    []*Episode `jsonapi:"relation,episodes"`
+		Episodes []*Episode `jsonapi:"relation,episodes"`
 	}
 
 	EpisodeMetadata struct {
