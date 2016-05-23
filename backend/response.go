@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/mindcastio/go-json-rest/rest"
+	"github.com/ant0ine/go-json-rest/rest"
 
 	"github.com/mindcastio/mindcastio/backend/jsonapi"
 	"github.com/mindcastio/mindcastio/backend/util"
