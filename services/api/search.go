@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/mindcastio/go-json-rest/rest"
+	"github.com/ant0ine/go-json-rest/rest"
 
 	"github.com/mindcastio/mindcastio/search"
 

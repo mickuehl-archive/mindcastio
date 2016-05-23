@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/mindcastio/go-json-rest/rest"
+	"github.com/ant0ine/go-json-rest/rest"
 
 	"github.com/mindcastio/mindcastio/backend/datastore"
 	"github.com/mindcastio/mindcastio/backend/environment"
