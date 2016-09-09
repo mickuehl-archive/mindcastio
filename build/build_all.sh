@@ -47,3 +47,5 @@ fi
 if [ ! -L "/usr/local/bin/mindcast-api" ]; then
 	sudo ln -s "$MINDCAST_SRC/services/api/api" /usr/local/bin/mindcast-api
 fi
+
+# @cd controller && go build -a -tags "netgo static_build" -installsuffix netgo -ldflags "-w -X github.com/lambda-engine/lambda-cluster/version.GitCommit=$(COMMIT)" .

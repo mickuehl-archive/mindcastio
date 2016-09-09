@@ -5,6 +5,7 @@ services/api/api
 tools/export_index/export_index
 tools/research/research
 tools/migrations/migration_*
+tools/migrations/migrations
 
 .vagrant/
 TODO.md
